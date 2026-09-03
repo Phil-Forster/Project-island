@@ -1,0 +1,68 @@
+{
+  "name": "sotf-achievement-tracker",
+  "version": "0.7.2",
+  "description": "Read-only Sons of the Forest Steam achievement dashboard with optional save evidence",
+  "author": "Phil Forster",
+  "homepage": "https://philforster.co.uk",
+  "main": "src/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/*.test.js",
+    "build:windows": "electron-builder --win nsis --x64",
+    "pack:windows": "electron-builder --win --x64 --dir"
+  },
+  "devDependencies": {
+    "electron": "43.1.1",
+    "electron-builder": "26.15.7"
+  },
+  "build": {
+    "appId": "uk.co.philforster.sotfachievementtracker",
+    "productName": "SOTF Achievement Tracker",
+    "copyright": "Copyright \u00a9 2026 Phil Forster",
+    "asar": false,
+    "compression": "normal",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "build/icon.png",
+      "package.json",
+      "README.md",
+      "LOG.md"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "executableName": "SOTF Achievement Tracker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SOTF Achievement Tracker",
+      "uninstallDisplayName": "SOTF Achievement Tracker",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "SOTF-Achievement-Tracker-Setup-v${version}.${ext}",
+      "include": "build/installer.nsh",
+      "installerIcon": "build/installerIcon.ico",
+      "uninstallerIcon": "build/uninstallerIcon.ico",
+      "installerHeader": "build/installerHeader.bmp",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/uninstallerSidebar.bmp"
+    }
+  }
+}

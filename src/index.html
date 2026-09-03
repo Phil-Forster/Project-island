@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-src 'none'">
+  <title>SOTF Achievement Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">SONS OF THE FOREST</p>
+        <h1>Achievement State</h1>
+      </div>
+      <div class="topbar-actions">
+        <button id="tourHelp" class="button button-secondary" type="button">Guide</button>
+        <button id="openGameFolder" class="button button-secondary" type="button">Open game folder</button>
+        <button id="refresh" class="button" type="button">Refresh</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="status-panel" aria-labelledby="source-heading">
+        <div class="steam-source">
+          <p class="section-kicker">Current source</p>
+          <h2 id="source-heading">Reading Steam…</h2>
+          <p id="sourcePath" class="muted"></p>
+        </div>
+        <div class="save-source">
+          <label for="savePicker">Optional save context</label>
+          <div class="save-picker-row">
+            <select id="savePicker" aria-describedby="saveMeta"><option value="">Steam only</option></select>
+            <button id="browseSaveFolder" class="button button-secondary compact" type="button">Browse</button>
+            <button id="openSaveRoot" class="button button-secondary compact" type="button">Open</button>
+          </div>
+          <p id="saveMeta" class="muted">Steam remains the achievement authority.</p>
+        </div>
+        <div class="source-badge">STEAM PRIMARY · APP 1326470</div>
+      </section>
+
+      <section id="summary" class="summary-grid" aria-label="Achievement summary"></section>
+
+      <section class="toolbar" aria-label="Achievement filters">
+        <div class="segmented" role="group" aria-label="State filter">
+          <button class="filter active" data-filter="all" type="button" aria-pressed="true">All</button>
+          <button class="filter" data-filter="unlocked" type="button" aria-pressed="false">Unlocked</button>
+          <button class="filter" data-filter="locked" type="button" aria-pressed="false">Locked</button>
+          <button class="filter" data-filter="unknown" type="button" aria-pressed="false">Unknown</button>
+        </div>
+        <label class="sr-only" for="search">Search achievements</label>
+        <input id="search" type="search" placeholder="Search achievements" autocomplete="off">
+      </section>
+
+      <section id="notice" class="notice" role="status" aria-live="polite" hidden></section>
+      <section id="achievementGrid" class="achievement-grid" aria-live="polite"></section>
+    </main>
+
+    <footer class="app-footer">
+      <span>© 2026 Phil Forster</span>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="https://philforster.co.uk" target="_blank" rel="noopener noreferrer">philforster.co.uk</a>
+    </footer>
+  </div>
+
+  <div id="tourOverlay" class="tour-overlay" hidden></div>
+  <section id="tourCoach" class="tour-coach" role="dialog" aria-modal="true" aria-labelledby="tourTitle" aria-describedby="tourText" hidden>
+    <div class="tour-step-count" id="tourStepCount"></div>
+    <h2 id="tourTitle" class="tour-title"></h2>
+    <p id="tourText" class="tour-text"></p>
+    <div class="tour-actions">
+      <button id="tourSkip" class="tour-button tour-button-quiet" type="button">Skip</button>
+      <span class="tour-actions-spacer"></span>
+      <button id="tourBack" class="tour-button tour-button-secondary" type="button">Back</button>
+      <button id="tourNext" class="tour-button" type="button">Next</button>
+    </div>
+  </section>
+
+  <template id="achievementTemplate">
+    <article class="achievement-card">
+      <button class="achievement-head" type="button" aria-expanded="false">
+        <span class="achievement-icon-wrap" aria-hidden="true">
+          <img class="achievement-icon" alt="" hidden>
+          <span class="achievement-icon-fallback">★</span>
+        </span>
+        <span class="state-dot" aria-hidden="true"></span>
+        <span class="achievement-title-wrap">
+          <span class="achievement-name"></span>
+          <span class="achievement-description"></span>
+        </span>
+        <span class="state-label"></span>
+        <span class="chevron" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 9.5 12 14.5 17 9.5"></path></svg></span>
+      </button>
+      <div class="achievement-body" hidden>
+        <section class="detail-section steam-section">
+          <h3>Steam result</h3>
+          <div class="steam-result-summary"></div>
+          <div class="unlock-row" hidden></div>
+          <div class="source-row"><span class="source-label">SOURCE</span><span class="steam-source-text"></span></div>
+        </section>
+        <section class="detail-section numeric-section">
+          <h3>Numeric progress</h3>
+          <p class="numeric-empty"></p>
+          <div class="progress-wrap" hidden>
+            <div class="progress-meta">
+              <span class="progress-text"></span>
+              <span class="progress-percent"></span>
+            </div>
+            <div class="progress-track" role="progressbar" aria-valuemin="0"><span class="progress-bar"></span></div>
+          </div>
+        </section>
+        <section class="detail-section save-evidence-section">
+          <h3>Selected-save evidence</h3>
+          <p class="evidence-summary"></p>
+          <div class="source-row save-source-row"><span class="source-label">SOURCE</span><span class="save-source-text"></span></div>
+          <div class="save-progress" hidden></div>
+          <div class="substates"></div>
+        </section>
+        <section class="detail-section guidance-section">
+          <div class="guidance-heading"><h3>Requirements and guidance</h3><span class="category-badge"></span></div>
+          <p class="guidance-text"></p>
+        </section>
+      </div>
+    </article>
+  </template>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
