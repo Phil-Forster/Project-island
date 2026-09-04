@@ -1,4 +1,4 @@
-; Bespoke Shared Installer Framework (BSI) v1.0.4
+; Bespoke Shared Installer Framework (BSI) v1.0.5
 ; Shared by Project Island, Project Gone, Project Drive and Project Float.
 ; NSIS/Electron Builder remain the deployment engine; no stock wizard page is
 ; intentionally exposed as user-facing UI. The visible flow is state-driven:
@@ -11,7 +11,7 @@
 !include "x64.nsh"
 !include "UAC.nsh"
 
-!define BSI_FRAMEWORK_VERSION "1.0.4"
+!define BSI_FRAMEWORK_VERSION "1.0.5"
 !define BSI_UNINSTALL_FILENAME "Uninstall ${PRODUCT_FILENAME}.exe"
 
 ; Keep any hidden MUI surface dark so a redraw/focus transition cannot flash a
@@ -469,9 +469,6 @@ Function .onInstFailed
   Call BSI_ShowInstallError
 FunctionEnd
 
-Function BSI_SkipDefaultFinish
-  Abort
-FunctionEnd
 
 Function BSI_WaitForPreviousInstallRelease
   StrCpy $BSI.UpgradeSettleCount 0
@@ -728,7 +725,6 @@ FunctionEnd
     Function BSI_LaunchAtUserLevel
       ${StdUtils.ExecShellAsUser} $R0 "$INSTDIR\${PRODUCT_FILENAME}.exe" "open" ""
     FunctionEnd
-    !define MUI_PAGE_CUSTOMFUNCTION_PRE BSI_SkipDefaultFinish
   !macroend
 
 !else

@@ -1,5 +1,14 @@
 # SOTF Achievement Tracker — Development Log
 
+## v1.2.5 — 04/09/2026
+
+- Removed the dead installer-only `BSI_SkipDefaultFinish` function that Windows `makensis` reported as warning 6010; Electron Builder treats NSIS warnings as fatal during packaging.
+- Confirmed against the exact Electron Builder 26.15.7 `assistedInstaller.nsh` contract that defining `customFinishPage` replaces the default installer Finish-page branch entirely, so no installer Finish-page pre-hook is required or valid.
+- Advanced **Shared Bespoke Installer Framework** to v1.0.5 and propagated the identical correction across all four tracker projects.
+- Strengthened `tools/installer-preflight.js` to forbid a phantom installer Finish-page pre-hook/function and to flag unreferenced shared `BSI_*` functions before Windows packaging where statically detectable.
+- Kept the bespoke in-place completion state, default-enabled **Launch Project Island** control, installer/uninstaller visuals, application UI and tracker logic unchanged.
+- Updated `README.md`, `LOG.md` and package version for this iteration; Windows compile/runtime validation remains the release gate.
+
 ## v1.2.4 — 04/09/2026
 
 - Corrected the shared launch-on-Finish architecture after Windows `makensis` showed that directly expanding `UAC_AsUser_ExecShell` inside the bespoke framework occurs before Electron Builder has made the UAC plugin available to that compile section.

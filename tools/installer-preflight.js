@@ -72,7 +72,7 @@ const requiredAssets = [
 for (const rel of requiredAssets) requireFile(path.join(root, rel), 'bespoke installer asset');
 
 const requiredFramework = [
-  '!define BSI_FRAMEWORK_VERSION "1.0.4"',
+  '!define BSI_FRAMEWORK_VERSION "1.0.5"',
   '!include "UAC.nsh"',
   'Function BSI_ReadyCreate',
   'Page custom BSI_ReadyCreate BSI_ReadyLeave',
@@ -101,7 +101,6 @@ const requiredFramework = [
   'Function BSI_LaunchAtUserLevel',
   '${StdUtils.ExecShellAsUser} $R0 "$INSTDIR\\${PRODUCT_FILENAME}.exe" "open" ""',
   'Call BSI_LaunchAtUserLevel',
-  '!define MUI_PAGE_CUSTOMFUNCTION_PRE BSI_SkipDefaultFinish',
   '!define MUI_PAGE_CUSTOMFUNCTION_PRE un.BSI_SkipDefaultFinish',
   'StrCpy $isForceMachineInstall "1"',
   'StrCpy $isForceCurrentInstall "1"',
@@ -141,6 +140,12 @@ if (prematureUninstall.includes('un.BSI_InstallCompleted')) {
 
 
 const finishMacro = source.match(/!macro customFinishPage\s*([\s\S]*?)!macroend/)?.[1] || '';
+if (/BSI_SkipDefaultFinish|MUI_PAGE_CUSTOMFUNCTION_PRE/.test(finishMacro)) {
+  fail('customFinishPage replaces Electron Builder\'s stock Finish-page branch; it must not define a phantom stock-page pre-hook.');
+}
+if (/Function\s+BSI_SkipDefaultFinish\b/.test(source)) {
+  fail('BSI_SkipDefaultFinish is forbidden: with customFinishPage defined, Electron Builder inserts no stock installer Finish page, so the function becomes fatal warning 6010 dead code.');
+}
 if (!finishMacro.includes('Function BSI_LaunchAtUserLevel') ||
     !finishMacro.includes('${StdUtils.ExecShellAsUser}')) {
   fail('customFinishPage must late-bind BSI_LaunchAtUserLevel using Electron Builder\'s own StdUtils launch broker compile point.');
@@ -182,6 +187,14 @@ for (const legacy of ['PI_CHROME', 'PG_CHROME', 'PD_CHROME', 'RF_CHROME', 'PD_Fi
 
 // Catch basic source corruption that otherwise produces opaque makensis errors.
 const functions = [...source.matchAll(/^\s*Function\s+([^\s]+)\s*$/gm)].map((m) => m[1]);
+const sourceNoComments = source.replace(/^\s*;.*$/gm, '');
+for (const fn of functions) {
+  if (fn.startsWith('.') || fn.startsWith('un.on')) continue; // NSIS callbacks are discovered by name.
+  const escapedFn = fn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const withoutDecl = sourceNoComments.replace(new RegExp(`^\\s*Function\\s+${escapedFn}\\s*$`, 'm'), '');
+  const refs = (withoutDecl.match(new RegExp(`(?<![A-Za-z0-9_.])${escapedFn}(?![A-Za-z0-9_.])`, 'g')) || []).length;
+  if (refs === 0) fail(`shared framework function ${fn} has no reference; makensis warning 6010 is fatal under Electron Builder.`);
+}
 const seen = new Set();
 for (const fn of functions) {
   if (seen.has(fn)) fail(`duplicate function definition: ${fn}`);
@@ -200,5 +213,5 @@ if (failed) {
   const game = config.match(/!define\s+BSI_GAME_NAME\s+"([^"]+)"/)?.[1] || 'Unknown game';
   const hash = crypto.createHash('sha256').update(source).digest('hex').slice(0, 16);
   console.log(`Installer preflight OK: ${project} / ${game}`);
-  console.log(`Shared bespoke framework v1.0.4 hash ${hash}; Ready -> Installing -> Complete/Error and Confirm -> Removing -> Complete/Error contracts present.`);
+  console.log(`Shared bespoke framework v1.0.5 hash ${hash}; Ready -> Installing -> Complete/Error and Confirm -> Removing -> Complete/Error contracts present.`);
 }

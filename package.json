@@ -1,6 +1,6 @@
 {
   "name": "sotf-achievement-tracker",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Read-only Sons of the Forest Steam achievement dashboard with optional save evidence",
   "author": "Phil Forster",
   "homepage": "https://philforster.co.uk",
@@ -20,7 +20,7 @@
   "build": {
     "appId": "uk.co.philforster.sotfachievementtracker",
     "productName": "SOTF Achievement Tracker",
-    "copyright": "Copyright © 2026 Phil Forster",
+    "copyright": "Copyright \u00a9 2026 Phil Forster",
     "asar": false,
     "compression": "normal",
     "directories": {

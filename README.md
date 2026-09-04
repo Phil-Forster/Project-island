@@ -176,13 +176,13 @@ The application icon and Windows executable metadata are applied during this bui
 
 ### Shared bespoke installer/uninstaller architecture
 
-The Windows package uses **Shared Bespoke Installer Framework v1.0.4**. NSIS/Electron Builder remains the deployment engine for elevation, extraction, registry/shortcut registration, upgrades and removal, but its standard wizard pages are not intentionally presented as the user interface.
+The Windows package uses **Shared Bespoke Installer Framework v1.0.5**. NSIS/Electron Builder remains the deployment engine for elevation, extraction, registry/shortcut registration, upgrades and removal, but its standard wizard pages are not intentionally presented as the user interface.
 
 The visible installer is one persistent branded shell whose content changes in place through **Ready → Installing → Complete/Error**. The uninstaller uses the same framework and changes through **Confirm uninstall → Removing → Complete/Error**. Project-specific configuration supplies the project/game names, accent palette, copy and shell artwork; shared state, path handling, scope/UAC handling, progress presentation, success/failure handling and navigation live in `build/installer/framework.nsh`.
 
 The Ready state owns the visible install-location field and Current user / All users selection. All-users installation may invoke the Windows-owned UAC prompt, but the Electron Builder install-mode and directory wizard pages remain hidden. The completion state provides a bespoke **Launch Project Island** toggle, checked by default, and a single **Finish** action. Clearing the toggle exits without launching the tracker.
 
-`node tools/installer-preflight.js` validates the shared-framework contract before Windows packaging. `BUILD-WINDOWS.bat` remains the supported packaging entry point. The source ZIP does not contain a compiled Windows Setup EXE; final NSIS compilation and visual/runtime validation are performed on Windows.
+`node tools/installer-preflight.js` validates the shared-framework contract before Windows packaging. The preflight also enforces Electron Builder 26.15.7's `customFinishPage` contract: defining that macro replaces the stock installer Finish-page branch entirely, so no dead stock-page pre-hook/function is retained. `BUILD-WINDOWS.bat` remains the supported packaging entry point. The source ZIP does not contain a compiled Windows Setup EXE; final NSIS compilation and visual/runtime validation are performed on Windows.
 
 
 ## Main interface
