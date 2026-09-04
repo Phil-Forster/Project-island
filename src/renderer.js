@@ -23,13 +23,14 @@ const elements = {
   tourText: document.getElementById('tourText'),
   tourSkip: document.getElementById('tourSkip'),
   tourBack: document.getElementById('tourBack'),
-  tourNext: document.getElementById('tourNext')
+  tourNext: document.getElementById('tourNext'),
+  scanState: document.getElementById('scanState')
 };
 
 let activeFilter = 'all';
 let initialReadySignalled = false;
 
-const CARD_ART = Array.from({ length: 6 }, (_, index) =>
+const CARD_ART = Array.from({ length: 10 }, (_, index) =>
   `assets/card-art-full/sotf-full-${String(index + 1).padStart(2, '0')}.webp`
 );
 const cardArtReady = Promise.all(CARD_ART.map((src) => {
@@ -43,7 +44,7 @@ const cardArtReady = Promise.all(CARD_ART.map((src) => {
   });
 })).then(() => undefined);
 
-const TOUR_STORAGE_KEY = 'sotf-achievement-tracker-tour-v2';
+const TOUR_STORAGE_KEY = 'sotf-achievement-tracker-tour-v3';
 let tourIndex = -1;
 let tourTarget = null;
 let tourPreviousFocus = null;
@@ -51,6 +52,7 @@ let tourOpenedHead = null;
 let tourAutoChecked = false;
 
 const tourSteps = [
+  { title: 'Spoiler notice', text: 'Achievement names, requirements and guidance can reveal story, locations, enemies or progression. Use the tracker at your own discretion if you want to avoid spoilers.', target: () => document.querySelector('.spoiler-disclaimer') },
   {
     title: 'Steam stays primary',
     text: 'The signed-in Steam account supplies achievement state and playtime. A save is optional and never replaces Steam.',
@@ -62,8 +64,8 @@ const tourSteps = [
     target: () => document.querySelector('.save-source')
   },
   {
-    title: 'Steam data',
-    text: 'Steam read, playtime and numeric UserStats are presented independently from the selected save.',
+    title: 'Field telemetry',
+    text: 'The field panel keeps Steam read, playtime, counters and the selected survival record separate so source authority stays clear.',
     target: () => document.querySelector('[data-tour="steam-read"]')
   },
   {
@@ -72,8 +74,8 @@ const tourSteps = [
     target: () => document.querySelector('.toolbar')
   },
   {
-    title: 'Open an achievement',
-    text: 'Each card separates Steam result, numeric progress, selected-save evidence and requirements/guidance.',
+    title: 'Open a field record',
+    text: 'Each record separates the Steam result, counter progress, selected-save traces and requirements/field notes.',
     target: () => firstTourAchievementCard(),
     prepare: () => expandTourAchievement()
   }
@@ -153,33 +155,56 @@ function renderSummary(data) {
   const unlocked = achievements.filter((item) => item.state === 'unlocked').length;
   const locked = achievements.filter((item) => item.state === 'locked').length;
   const unknown = achievements.filter((item) => item.state === 'unknown').length;
-
-  const cards = [
-    ['Achievements', `${unlocked} / ${total}`],
-    ['Locked', locked],
-    ['Unknown', unknown],
-    ['Steam playtime', formatPlaytime(data.steam?.playtime?.minutes)],
-    ['Save context', data.selectedSave ? data.selectedSave.mode : 'Steam only'],
-    ['Save time', data.saveMeta?.days == null ? '—' : `Day ${data.saveMeta.days} · ${String(data.saveMeta.hours ?? 0).padStart(2, '0')}:${String(data.saveMeta.minutes ?? 0).padStart(2, '0')}`],
-    ['Steam read', `${data.steam?.count || 0}/${total} · ${data.steam?.source === 'steam-local-api' ? 'Local API' : data.steam?.source === 'steam-community' ? 'Community' : 'Unresolved'}`],
-    ['Steam stats', data.steam?.source === 'steam-local-api' ? `${data.steam?.statsCount || 0} counters` : '—']
-  ];
+  const tracked = achievements.filter((item) => item.displayProgress).length;
+  const percent = total > 0 ? Math.round((unlocked / total) * 100) : 0;
+  const source = data.steam?.source === 'steam-local-api' ? 'Local UserStats'
+    : data.steam?.source === 'steam-community' ? 'Community fallback' : 'Unresolved';
+  const saveClock = data.saveMeta?.days == null
+    ? 'No save selected'
+    : `Day ${data.saveMeta.days} · ${String(data.saveMeta.hours ?? 0).padStart(2, '0')}:${String(data.saveMeta.minutes ?? 0).padStart(2, '0')}`;
 
   elements.summary.innerHTML = '';
-  for (const [label, value] of cards) {
-    const card = document.createElement('div');
-    card.className = 'summary-card';
-    if (label === 'Steam read') card.dataset.tour = 'steam-read';
-    if (label === 'Steam stats') card.dataset.tour = 'steam-stats';
-    const labelEl = document.createElement('span');
-    labelEl.className = 'summary-label';
-    labelEl.textContent = label;
-    const valueEl = document.createElement('span');
-    valueEl.className = `summary-value${String(value).length > 16 ? ' small' : ''}`;
-    valueEl.textContent = value;
-    card.append(labelEl, valueEl);
-    elements.summary.append(card);
+
+  const completion = document.createElement('div');
+  completion.className = 'completion-instrument island-compass';
+  completion.dataset.tour = 'completion';
+  const label = document.createElement('div'); label.className = 'instrument-label';
+  const labelLeft = document.createElement('span'); labelLeft.textContent = 'Field completion';
+  const labelRight = document.createElement('span'); labelRight.textContent = 'Steam record';
+  label.append(labelLeft, labelRight);
+
+  const dial = document.createElement('div');
+  dial.className = 'completion-dial completion-dial--compass';
+  dial.style.setProperty('--completion-angle', `${Math.min(270, Math.max(0, percent * 2.7))}deg`);
+  dial.setAttribute('role', 'img');
+  dial.setAttribute('aria-label', `${percent}% complete, ${unlocked} of ${total} achievements unlocked`);
+  for (const [letter, cls] of [['N','n'],['E','e'],['S','s'],['W','w']]) {
+    const mark = document.createElement('span'); mark.className = `compass-mark compass-mark--${cls}`; mark.textContent = letter; dial.append(mark);
   }
+  const cross = document.createElement('span'); cross.className = 'compass-cross'; dial.append(cross);
+  const core = document.createElement('div'); core.className = 'completion-core';
+  const percentEl = document.createElement('span'); percentEl.className = 'completion-percent'; percentEl.textContent = `${percent}%`;
+  const countEl = document.createElement('span'); countEl.className = 'completion-count'; countEl.textContent = `${unlocked} / ${total}`;
+  const captionEl = document.createElement('span'); captionEl.className = 'completion-caption'; captionEl.textContent = 'Recovered';
+  core.append(percentEl, countEl, captionEl); dial.append(core); completion.append(label, dial);
+
+  const telemetry = document.createElement('div'); telemetry.className = 'telemetry-stack';
+  const rows = [
+    ['Locked records', String(locked), locked > 0 ? 'neutral' : 'good'],
+    ['Unknown records', String(unknown), unknown > 0 ? 'warning' : 'good'],
+    ['Steam playtime', formatPlaytime(data.steam?.playtime?.minutes), 'neutral'],
+    ['Tracked counters', `${tracked} / ${total}`, tracked > 0 ? 'good' : 'neutral', 'tracked-counters'],
+    ['Steam read', `${data.steam?.count || 0} / ${total} · ${source}`, Number(data.steam?.count || 0) === total ? 'good' : 'warning', 'steam-read'],
+    ['Survival record', saveClock, 'neutral', 'steam-stats']
+  ];
+  for (const [rowLabel, value, status, tour] of rows) {
+    const row = document.createElement('div'); row.className = 'telemetry-row'; row.dataset.status = status;
+    if (tour) row.dataset.tour = tour;
+    const labelEl = document.createElement('span'); labelEl.className = 'telemetry-label'; labelEl.textContent = rowLabel;
+    const valueEl = document.createElement('span'); valueEl.className = 'telemetry-value'; valueEl.textContent = value;
+    row.append(labelEl, valueEl); telemetry.append(row);
+  }
+  elements.summary.append(completion, telemetry);
 }
 
 function renderSubstates(container, substates) {
@@ -493,6 +518,8 @@ function render(data) {
 }
 
 async function load({ refresh = false } = {}) {
+  document.body.classList.add('is-scanning');
+  if (elements.scanState) elements.scanState.textContent = refresh ? 'RESCANNING ISLAND' : 'READING FIELD DATA';
   elements.refresh.disabled = true;
   elements.refresh.textContent = 'Reading…';
   try {
@@ -504,10 +531,25 @@ async function load({ refresh = false } = {}) {
   } finally {
     elements.refresh.disabled = false;
     elements.refresh.textContent = 'Refresh';
+    document.body.classList.remove('is-scanning');
+    if (elements.scanState) elements.scanState.textContent = 'GPS LINK READY';
     if (!initialReadySignalled) {
       initialReadySignalled = true;
       window.sotf.notifyReady();
     }
+  }
+}
+
+async function initProjectFooter() {
+  const year = document.getElementById('footerYear');
+  const version = document.getElementById('footerVersion');
+  if (year) year.textContent = String(new Date().getFullYear());
+  if (!version) return;
+  try {
+    const meta = await window.sotf.getAppMeta();
+    version.textContent = meta?.version ? `v${meta.version}` : 'Version unavailable';
+  } catch (_) {
+    version.textContent = 'Version unavailable';
   }
 }
 
@@ -576,4 +618,5 @@ for (const button of elements.filters) {
 }
 
 window.sotf.onDashboardUpdated((data) => render(data));
+initProjectFooter();
 load();

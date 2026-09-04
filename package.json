@@ -1,6 +1,6 @@
 {
   "name": "sotf-achievement-tracker",
-  "version": "0.7.2",
+  "version": "1.2.4",
   "description": "Read-only Sons of the Forest Steam achievement dashboard with optional save evidence",
   "author": "Phil Forster",
   "homepage": "https://philforster.co.uk",
@@ -10,7 +10,8 @@
     "start": "electron .",
     "test": "node --test tests/*.test.js",
     "build:windows": "electron-builder --win nsis --x64",
-    "pack:windows": "electron-builder --win --x64 --dir"
+    "pack:windows": "electron-builder --win --x64 --dir",
+    "check:installer": "node tools/installer-preflight.js"
   },
   "devDependencies": {
     "electron": "43.1.1",
@@ -19,7 +20,7 @@
   "build": {
     "appId": "uk.co.philforster.sotfachievementtracker",
     "productName": "SOTF Achievement Tracker",
-    "copyright": "Copyright \u00a9 2026 Phil Forster",
+    "copyright": "Copyright © 2026 Phil Forster",
     "asar": false,
     "compression": "normal",
     "directories": {
@@ -49,20 +50,21 @@
       "oneClick": false,
       "perMachine": false,
       "allowElevation": true,
-      "allowToChangeInstallationDirectory": true,
+      "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "SOTF Achievement Tracker",
       "uninstallDisplayName": "SOTF Achievement Tracker",
-      "runAfterFinish": true,
+      "runAfterFinish": false,
       "deleteAppDataOnUninstall": false,
       "artifactName": "SOTF-Achievement-Tracker-Setup-v${version}.${ext}",
       "include": "build/installer.nsh",
       "installerIcon": "build/installerIcon.ico",
-      "uninstallerIcon": "build/uninstallerIcon.ico",
-      "installerHeader": "build/installerHeader.bmp",
-      "installerSidebar": "build/installerSidebar.bmp",
-      "uninstallerSidebar": "build/uninstallerSidebar.bmp"
+      "uninstallerIcon": "build/uninstallerIcon.ico"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Phil-Forster/Project-island.git"
   }
 }

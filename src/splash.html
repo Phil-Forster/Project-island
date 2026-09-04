@@ -3,102 +3,183 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'none'">
-  <title>SOTF Achievement Tracker</title>
-  <link rel="preload" as="image" href="assets/splash.webp" type="image/webp">
+  <title>Project Island — Sons of the Forest Achievement Tracker</title>
+  <link rel="preload" as="image" href="assets/app-background-island.webp" type="image/webp">
+  <link rel="preload" as="image" href="assets/project-island-badge.webp" type="image/webp">
   <style>
     :root {
       color-scheme: dark;
-      --splash-text: #e8ece8;
-      --splash-muted: #a8b2aa;
-      --splash-track: rgba(19, 28, 23, 0.8);
-      --splash-border: rgba(127, 155, 99, 0.34);
-      --splash-fill: #8fae69;
+      --splash-text: #edf1ed;
+      --splash-muted: #a6b0a8;
+      --splash-track: rgba(13, 21, 16, .88);
+      --splash-border: rgba(168, 191, 114, .42);
+      --splash-fill: #a8bf72;
+      --splash-panel: rgba(6, 11, 8, .86);
     }
-
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      background: transparent;
-      user-select: none;
-    }
-
-    body {
-      display: grid;
-      place-items: center;
-      font-family: "Segoe UI", Arial, sans-serif;
-    }
-
+    * { box-sizing: border-box; }
+    html, body { width:100%; height:100%; margin:0; overflow:hidden; background:transparent; user-select:none; }
+    body { display:grid; place-items:center; font-family:"Segoe UI",Arial,sans-serif; }
     .splash {
-      position: relative;
-      width: 100%;
-      height: 100%;
+      position:relative;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      border:1px solid rgba(168,191,114,.26);
+      border-radius:22px;
+      background:#07100b;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.018);
     }
-
     .splash__art {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      -webkit-user-drag: none;
-      pointer-events: none;
+      position:absolute;
+      inset:0;
+      display:block;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      -webkit-user-drag:none;
+      pointer-events:none;
     }
-
-    .splash__runtime {
-      position: absolute;
-      left: 50%;
-      bottom: 64px;
-      width: min(390px, 48%);
-      transform: translateX(-50%);
-      text-align: center;
-      pointer-events: none;
+    .splash::after {
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(90deg,rgba(5,10,7,.98) 0%,rgba(5,10,7,.94) 39%,rgba(5,10,7,.72) 56%,rgba(5,10,7,.28) 76%,rgba(5,10,7,.32) 100%),
+        linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.08) 60%,rgba(0,0,0,.48));
     }
-
+    .splash__identity {
+      position:absolute;
+      z-index:2;
+      left:48px;
+      top:42px;
+      display:grid;
+      grid-template-columns:112px minmax(0,1fr);
+      align-items:center;
+      gap:22px;
+      max-width:560px;
+    }
+    .splash__badge {
+      display:block;
+      width:112px;
+      height:112px;
+      object-fit:contain;
+      filter:drop-shadow(0 9px 18px rgba(0,0,0,.54));
+      pointer-events:none;
+      -webkit-user-drag:none;
+    }
+    .splash__brand { min-width:0; color:var(--splash-text); text-shadow:0 2px 10px rgba(0,0,0,.9); }
+    .splash__brand strong {
+      display:block;
+      font-size:31px;
+      line-height:1;
+      font-weight:800;
+      letter-spacing:.12em;
+    }
+    .splash__brand span {
+      display:block;
+      margin-top:8px;
+      color:var(--splash-fill);
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.2em;
+      text-transform:uppercase;
+    }
+    .splash__copy {
+      position:absolute;
+      z-index:2;
+      left:56px;
+      bottom:122px;
+      width:430px;
+      padding:18px 20px 17px;
+      border:1px solid rgba(168,191,114,.22);
+      border-radius:10px;
+      background:linear-gradient(90deg,var(--splash-panel),rgba(6,11,8,.68));
+      box-shadow:0 18px 34px rgba(0,0,0,.2);
+      backdrop-filter:blur(5px);
+    }
+    .splash__copy h1 {
+      margin:0;
+      color:var(--splash-text);
+      font-size:19px;
+      line-height:1.2;
+      font-weight:680;
+      letter-spacing:.01em;
+    }
+    .splash__copy p {
+      margin:7px 0 0;
+      color:var(--splash-muted);
+      font-size:11px;
+      line-height:1.5;
+    }
+    .splash__runtime { margin-top:16px; pointer-events:none; }
+    .splash__runtime-head {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:8px;
+      color:var(--splash-muted);
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+    }
+    .splash__status { color:var(--splash-fill); }
     .splash__progress {
-      height: 4px;
-      overflow: hidden;
-      border: 1px solid var(--splash-border);
-      border-radius: 999px;
-      background: var(--splash-track);
+      height:5px;
+      overflow:hidden;
+      border:1px solid var(--splash-border);
+      border-radius:999px;
+      background:var(--splash-track);
     }
-
     .splash__progress-fill {
-      width: 5%;
-      height: 100%;
-      border-radius: inherit;
-      background: var(--splash-fill);
-      transition: width 220ms ease-out;
+      width:5%;
+      height:100%;
+      border-radius:inherit;
+      background:linear-gradient(90deg,#7f9b63,var(--splash-fill));
+      box-shadow:0 0 12px rgba(168,191,114,.24);
+      transition:width 220ms ease-out;
     }
-
-    .splash__status {
-      margin-top: 11px;
-      color: var(--splash-text);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      line-height: 1.4;
-      text-transform: uppercase;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+    .splash__project {
+      position:absolute;
+      z-index:2;
+      left:57px;
+      bottom:54px;
+      color:rgba(232,236,232,.6);
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:.17em;
+      text-transform:uppercase;
     }
-
-    @media (prefers-reduced-motion: reduce) {
-      .splash__progress-fill {
-        transition: none;
-      }
-    }
+    @media (prefers-reduced-motion: reduce) { .splash__progress-fill { transition:none; } }
   </style>
 </head>
 <body>
-  <main class="splash" aria-label="Sons of the Forest Achievement Tracker loading">
-    <img class="splash__art" src="assets/splash.webp" alt="Sons of the Forest Achievement Tracker">
-    <section class="splash__runtime" aria-live="polite">
-      <div id="splashProgress" class="splash__progress" role="progressbar" aria-label="Startup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="5">
-        <div id="splashProgressFill" class="splash__progress-fill"></div>
+  <main class="splash" aria-label="Project Island loading">
+    <img class="splash__art" src="assets/app-background-island.webp" alt="">
+    <section class="splash__identity" aria-hidden="true">
+      <img class="splash__badge" src="assets/project-island-badge.webp" alt="">
+      <div class="splash__brand">
+        <strong>PROJECT ISLAND</strong>
+        <span>Sons of the Forest · Achievement Tracker</span>
       </div>
-      <div id="splashStatus" class="splash__status">Starting achievement tracker…</div>
     </section>
+    <section class="splash__copy" aria-live="polite">
+      <h1>Preparing your island survival record</h1>
+      <p>Reading the local Steam state and preparing the achievement field interface.</p>
+      <div class="splash__runtime">
+        <div class="splash__runtime-head">
+          <span id="splashStatus" class="splash__status">Starting achievement tracker…</span>
+          <span aria-hidden="true">LOCAL · READ ONLY</span>
+        </div>
+        <div id="splashProgress" class="splash__progress" role="progressbar" aria-label="Startup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="5">
+          <div id="splashProgressFill" class="splash__progress-fill"></div>
+        </div>
+      </div>
+    </section>
+    <div class="splash__project" aria-hidden="true">Project Island · Steam-first achievement tracking</div>
   </main>
   <script src="splash.js"></script>
 </body>

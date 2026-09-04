@@ -3,6 +3,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('sotf', {
+  getAppMeta: () => ipcRenderer.invoke('app:meta'),
   getDashboard: () => ipcRenderer.invoke('dashboard:get'),
   refreshDashboard: () => ipcRenderer.invoke('dashboard:refresh'),
   selectSave: (saveKey) => ipcRenderer.invoke('dashboard:select-save', saveKey),

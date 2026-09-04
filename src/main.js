@@ -302,6 +302,8 @@ function startWatcher(saveRoot) {
   }
 }
 
+ipcMain.handle('app:meta', () => ({ version: app.getVersion() }));
+
 ipcMain.handle('dashboard:get', async () => {
   const data = await buildDashboard({ onStatus: updateSplashStatus });
   // Renderer ui:ready is the preferred handoff. This fallback prevents a

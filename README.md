@@ -1,14 +1,46 @@
 # SOTF Achievement Tracker
 
+## Current iteration
+
+**v1.2.4 — late-bound launch broker correction**
+
+v1.2.4 corrects the launch broker's compile position. The bespoke completion state still owns the UI, while the user-level launch function is emitted from Electron Builder's late `customFinishPage` hook—the same point its stock assisted installer uses—so the required broker plug-in is available without exposing the stock Finish page.
+
+### v1.0.0 — game-native interface redesign
+
+- Rebuilt the application hierarchy around a Sons of the Forest survival/GPS field-record language rather than generic dashboard cards.
+- Added the **Island Survival Record**, SITE 2 field instrumentation, compass-style completion gauge and survival-record telemetry.
+- Reframed the achievement list as **Achievement field records** with game-specific Steam record, counter, selected-save trace and field-note terminology.
+- Preserved the ten-scene full-bleed SOTF artwork pool, bespoke Project Island installer/uninstaller, verified GitHub link and universal footer.
+
+### v0.8.1 — NSIS compile correction
+
+- Corrected malformed multiline text in the bespoke installer and uninstaller completion pages.
+- Installer preflight now rejects unterminated `NSD_CreateLabel` strings before Electron Builder runs.
+
+### v0.8.0 — Project Drive parity pass
+
+- Bespoke Project Island installer/uninstaller using the validated Project Drive assisted-install journey.
+- Sons of the Forest-specific installer header/sidebar artwork and Project Island application header treatment.
+- Ten full-bleed, game-specific achievement scenes with deterministic preloading/assignment.
+- Verified GitHub source link: `Phil-Forster/Project-island`.
+- Universal footer retains **SPOILERS CONTAINED**, dynamic version/year, author and portfolio information.
+- Installer preflight runs automatically before Windows packaging.
+
 A read-only Windows desktop application for tracking **Sons of the Forest** Steam achievements and showing useful subtask guidance from the selected game save.
+
+
+## Spoiler notice
+
+Achievement names, requirements and in-app guidance may reveal story details, locations, enemies or progression. Use the tracker at your own discretion if you want to avoid spoilers.
 
 ## Current build
 
-**v0.7.2 — Full-bleed card landscapes**
+**v1.2.0 — shared bespoke installer architecture**
 
 The tracker is a general reader. It is not tied to a particular Steam account, save slot, Windows username, Steam library drive, or development save.
 
-Collapsed achievement cards that share a row with an expanded card use a stable rotation of six optimised, full-width SOTF landscapes. The images cover the complete surplus panel beneath controlled dark gradients rather than appearing as isolated transparent cutouts. All card art is preloaded while Steam data is read, and the splash is decoded before its transparent window is shown.
+Collapsed achievement cards that share a row with an expanded card use a stable rotation of ten optimised, full-width SOTF landscapes. The images cover the complete surplus panel beneath controlled dark gradients rather than appearing as isolated transparent cutouts. All card art is preloaded while Steam data is read, and the splash is decoded before its transparent window is shown.
 
 ## Purpose
 
@@ -142,19 +174,16 @@ The build script:
 
 The application icon and Windows executable metadata are applied during this build.
 
-### Installer and uninstaller presentation
+### Shared bespoke installer/uninstaller architecture
 
-The Windows installer is an assisted NSIS installer with project-specific presentation rather than the stock wizard appearance. It uses the same dark forest palette as the tracker, branded header/sidebar artwork, dedicated installer/uninstaller icons, custom welcome/finish copy and read-only safety messaging. A runtime palette pass covers every assisted-installer pane, including install mode, directory selection, progress/details and finish, plus the native title bar, footer/branding strip and navigation controls. Text is normalised to light tones against the forest surfaces and the finish-page launch checkbox is explicitly labelled **Launch SOTF Achievement Tracker**.
+The Windows package uses **Shared Bespoke Installer Framework v1.0.4**. NSIS/Electron Builder remains the deployment engine for elevation, extraction, registry/shortcut registration, upgrades and removal, but its standard wizard pages are not intentionally presented as the user interface.
 
-The uninstaller receives the same treatment across its welcome, install-mode (when shown), progress/details and finish panes. It also explicitly states that removing the tracker does **not** modify or delete Sons of the Forest saves or Steam achievement data.
+The visible installer is one persistent branded shell whose content changes in place through **Ready → Installing → Complete/Error**. The uninstaller uses the same framework and changes through **Confirm uninstall → Removing → Complete/Error**. Project-specific configuration supplies the project/game names, accent palette, copy and shell artwork; shared state, path handling, scope/UAC handling, progress presentation, success/failure handling and navigation live in `build/installer/framework.nsh`.
 
-After a successful build, the file intended for distribution is placed at:
+The Ready state owns the visible install-location field and Current user / All users selection. All-users installation may invoke the Windows-owned UAC prompt, but the Electron Builder install-mode and directory wizard pages remain hidden. The completion state provides a bespoke **Launch Project Island** toggle, checked by default, and a single **Finish** action. Clearing the toggle exits without launching the tracker.
 
-```text
-RELEASE\SOTF-Achievement-Tracker-Setup-v<version>.exe
-```
+`node tools/installer-preflight.js` validates the shared-framework contract before Windows packaging. `BUILD-WINDOWS.bat` remains the supported packaging entry point. The source ZIP does not contain a compiled Windows Setup EXE; final NSIS compilation and visual/runtime validation are performed on Windows.
 
-That single Setup EXE is the file to copy to USB or send to another Windows PC.
 
 ## Main interface
 
@@ -239,6 +268,10 @@ npm --version
 Implementation history, fixes, validation notes and maintenance actions are recorded in [`LOG.md`](LOG.md). The README is intentionally limited to user-facing information.
 
 ## Author
+
+### Shared tracker footer
+
+The application uses the universal achievement-tracker footer structure while presenting this tracker as **Project Island**. It includes the persistent spoiler warning, Phil Forster attribution, portfolio link, automatic copyright year and the running Electron package version. The footer includes the verified public GitHub source link for `Phil-Forster/Project-island`.
 
 © 2026 Phil Forster  
 [philforster.co.uk](https://philforster.co.uk)

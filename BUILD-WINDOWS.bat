@@ -53,6 +53,19 @@ if exist "%ELECTRON_LOCK%" (
   )
 )
 
+echo Running installer preflight...
+echo.
+call node "%CD%\tools\installer-preflight.js"
+set "PREFLIGHT_EXIT=%ERRORLEVEL%"
+if not "%PREFLIGHT_EXIT%"=="0" (
+  echo.
+  echo Installer preflight failed with exit code %PREFLIGHT_EXIT%.
+  echo The Windows build has not started.
+  echo.
+  pause
+  exit /b %PREFLIGHT_EXIT%
+)
+
 if exist "%BUILDER_CLI%" goto build
 
 echo Installing pinned build dependency electron-builder 26.15.7...

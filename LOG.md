@@ -1,5 +1,112 @@
 # SOTF Achievement Tracker — Development Log
 
+## v1.2.4 — 04/09/2026
+
+- Corrected the shared launch-on-Finish architecture after Windows `makensis` showed that directly expanding `UAC_AsUser_ExecShell` inside the bespoke framework occurs before Electron Builder has made the UAC plugin available to that compile section.
+- Advanced **Shared Bespoke Installer Framework** to v1.0.4 and removed plugin-dependent launch calls from the early shared function body that Electron Builder compiles before its broker plug-ins are available.
+- Launch-on-Finish is now defined inside the late `customFinishPage` expansion, matching Electron Builder's own `StartApp` placement and using its supported `StdUtils.ExecShellAsUser` broker while the stock Finish page remains suppressed.
+- Strengthened `tools/installer-preflight.js` to reject plugin-dependent launch calls in early Function bodies and require the late-bound launch-broker contract.
+- No visible installer/uninstaller design, application UI, achievement logic, Steam/save handling or project-specific skin was changed in this patch.
+- Updated `README.md`, `LOG.md` and package version for this iteration; Windows compilation/runtime validation remains the release gate.
+
+## v1.2.3 — 04/09/2026
+
+- Removed the shared framework dependency on `StdUtils::ExecShellAsUser` after the Windows Electron Builder NSIS bundle failed compilation because the `StdUtils` runtime plugin was not present.
+- Advanced **Shared Bespoke Installer Framework** to v1.0.3 and switched Launch-on-Finish to the UAC plugin already used by Electron Builder's multi-user installer flow: elevated inner installs call `UAC_AsUser_ExecShell`, while non-elevated installs use normal `ExecShell`.
+- Preserved the bespoke **Launch [Project Name]** toggle, checked by default, and the requirement that Finish launches the tracker at the interactive user's normal integrity level rather than elevated.
+- Strengthened `tools/installer-preflight.js` to require the UAC launch-broker contract and reject any reintroduction of `StdUtils::ExecShellAsUser`.
+- No visible installer/uninstaller design, application UI, achievement logic, Steam/save handling or project-specific skin was changed in this patch.
+- Updated `README.md`, `LOG.md` and package version for this iteration; Windows compilation/runtime validation remains the release gate.
+
+## v1.2.2 — 04/09/2026
+
+- Removed two dead shared NSIS bitmap-handle variables (`BSI.ToggleOnBmp` and `BSI.ToggleOffBmp`) that triggered makensis warning 6001; Electron Builder treats NSIS warnings as fatal during packaging.
+- Advanced **Shared Bespoke Installer Framework** to v1.0.2 and propagated the identical framework correction across all four tracker projects.
+- Strengthened `tools/installer-preflight.js` to reject unused `BSI.*` NSIS variable declarations before Electron Builder starts, preventing the same warnings-as-errors build failure from reaching makensis.
+- No visible installer/uninstaller design, application UI, achievement logic, Steam/save handling or project skin was changed in this patch.
+- Updated `README.md`, `LOG.md` and package version for this iteration; Windows compile/runtime validation remains the release gate.
+
+## v1.2.1 — 04/09/2026
+
+- Corrected the shared `customUnInstallSection` compile contract after Windows `makensis` rejected the hidden finalisation section for calling `un.BSI_InstallCompleted` from a section that was not itself classified as uninstall code.
+- Renamed the hidden post-removal finalisation section to an `un.*` section and marked it `SectionIn RO`, matching NSIS/Electron Builder uninstall-section requirements while preserving the synchronous Removing → Complete transition.
+- Advanced **Shared Bespoke Installer Framework** from v1.0.0 to **v1.0.1** and propagated the identical framework fix across all four tracker projects.
+- Strengthened `tools/installer-preflight.js` so a custom uninstall section now fails preflight unless it is an `un.*`, required, non-optional section; this exact compile failure can no longer pass the project preflight unnoticed.
+- No application UI, Steam/save logic, achievement data or project-specific installer skin was changed in this patch.
+- Updated `README.md`, `LOG.md` and package version for this iteration. Windows compilation/runtime verification remains the release gate.
+
+## v1.2.0 — 04/09/2026
+
+- Replaced the previous project-specific MUI/wizard skin with **Shared Bespoke Installer Framework v1.0.0**, reused verbatim across all four tracker projects.
+- Reduced `build/installer.nsh` to a two-include entry point: project-specific configuration/assets plus the shared state/deployment framework.
+- Rebuilt the visible installer as a persistent branded shell with Ready → Installing → Complete/Error states and no intentionally exposed standard Welcome, Directory or Finish wizard pages.
+- Rebuilt the uninstaller on the same shared shell with Confirm uninstall → Removing → Complete/Error states.
+- Added project-specific setup/removal shell artwork, accent configuration and copy for **Project Island / Sons of the Forest** while keeping common behaviour in one framework.
+- Added the bespoke **Launch Project Island** completion toggle, checked by default; Finish launches through the interactive user token when enabled and exits without launching when disabled.
+- Kept NSIS/Electron Builder responsible for deployment mechanics only: elevation, payload extraction/removal, install scope/path, registry data, shortcuts, Add/Remove Programs registration and upgrade handling.
+- Added shared installer preflight checks for architecture drift, forbidden native/wizard UI patterns, required assets/configuration and framework identity.
+- Updated `README.md`, package version and installer documentation for this iteration. Final Windows NSIS compilation and visual/runtime verification remain Windows target checks.
+
+## v1.1.1 — 04/09/2026
+
+- Replaced the overlapping Project Island splash composition with one formalised splash layout using the game-specific island background, Project Island badge, restrained status copy and a single integrated startup progress rail.
+- Reworked the compass completion gauge so N/E/S/W sit on a protected outer marker rail and cannot be obscured by the live completion arc.
+- Kept Steam authority, achievement mappings, save parsing, installer and uninstaller behaviour unchanged; installer presentation remains deliberately deferred to a later focused pass.
+
+## v1.1.0 — 04/09/2026
+
+- Realigned Project Island with the shared four-project tracker framework while preserving its Sons of the Forest survival/GPS field-record presentation.
+- Applied the new Project Island badge across footer, application/shortcut icon, installer icon and uninstaller icon surfaces.
+- Aligned the installer and uninstaller to the shared polished branded progress experience, including game-specific artwork and the slim integrated progress treatment.
+- Kept the established green Project Island identity and game-specific interface language intact.
+- No Steam authority, achievement mapping, save parsing or write behaviour was changed.
+
+## v1.0.0 — 03/09/2026
+
+- Promoted Project Island to the first full release and rebuilt the visible application around a Sons of the Forest-specific survival/GPS field-record identity.
+- Added an Island Survival Record header, SITE 2 field instrumentation, compass completion gauge, survival telemetry and Achievement field records catalogue.
+- Reworded expanded achievement dossiers to use Steam record, counter progress, selected-save traces and field-note terminology while preserving all existing Steam/save logic.
+- Kept the ten-image SOTF full-bleed art rotation, bespoke Project Island installer/uninstaller flow, Project Island GitHub source link and universal footer.
+- No achievement authority, save-writing behaviour or Steam mapping was changed.
+
+## v0.8.1 — 03/09/2026
+
+- Fixed two malformed multiline NSIS label strings on the install-complete and uninstall-complete pages that caused `makensis` to report an unterminated string.
+- Kept the bespoke Project Drive-spec installer journey and game-specific artwork unchanged.
+- Extended installer preflight to fail immediately when an `NSD_CreateLabel` quoted string is split across physical source lines.
+
+## v0.8.0 — 03/09/2026
+
+- Rebuilt the Windows installer and uninstaller around the validated Project Drive assisted-installer journey, including bespoke palette-matched controls, completion pages, launch-after-finish choice and upgrade/reinstall settle handling.
+- Added Sons of the Forest / Project Island installer header and sidebar artwork plus a Project Island-specific application header treatment.
+- Expanded full-bleed achievement artwork from six to ten game-specific scenes and kept deterministic preloading/assignment.
+- Added the verified public GitHub repository link for `Phil-Forster/Project-island` to the universal footer.
+- Kept **SPOILERS CONTAINED**, dynamic version/year metadata, Phil Forster attribution and the Project Island footer identity.
+- Added the installer preflight to `BUILD-WINDOWS.bat` so NSIS flow/compile-warning regressions are caught before Electron Builder runs.
+
+## v0.7.5 — 03/09/2026
+
+- Refined the universal footer presentation for **Project Island** with a cleaner, simpler island/forest project emblem.
+- Changed the persistent warning copy from **SPOILERS AHEAD** to **SPOILERS CONTAINED** to better describe the tracker content already on display.
+- Added the `spoiler-disclaimer` hook to the footer warning so the Guide can reliably target the persistent spoiler notice.
+- Preserved automatic year/version handling, Project Island identity, author attribution and the portfolio link while leaving repository links omitted unless a verified URL is available.
+
+## v0.7.4 — 03/09/2026
+
+- Replaced the legacy one-line copyright footer with the universal tracker footer using the **Project Island** identity and game-specific accent/icon treatment.
+- Moved the persistent spoiler warning into the footer so it remains visible without duplicating the same warning above the achievement filters.
+- Added compact project identity, author and portfolio blocks; repository/home links remain omitted unless the project exposes a real URL.
+- Footer copyright year is derived from the local system date and the displayed version is read from Electron `app.getVersion()` through the restricted preload bridge.
+- Added responsive footer stacking and explicit high-contrast states for text, links, warning copy and focus indicators.
+
+## v0.7.3 — 03/09/2026
+
+- Reworked NSIS installer/uninstaller theming so every sibling and nested assisted-installer dialog is themed, not only the first page container.
+- Added native control coverage for combo boxes, rich-edit variants, links, list/tree views and progress controls; content controls now detach stock light visual styling before palette application.
+- Reduced installer recolour latency from 120 ms to 40 ms to minimise visible system-colour flashes during page changes.
+- Added the shared Project Island spoiler notice to the main tracker and as the first Guide step.
+- Bumped the Guide completion key so existing users see the new spoiler guidance once.
+
 This log records implementation work, decisions, defects, corrections and known outstanding items. It is the technical/project record; `README.md` is the user-facing overview.
 
 ---
