@@ -30,12 +30,26 @@ if errorlevel 1 (
 )
 
 echo Installing project dependencies...
+echo.
 call npm install
 if errorlevel 1 (
   echo.
   echo Dependency installation failed.
   pause
   exit /b 1
+)
+
+rem Never hand back to the VBS launcher unless Electron now exists. This
+rem prevents BAT -> VBS -> BAT recursion when dependency setup is incomplete.
+if not exist "node_modules\electron\dist\electron.exe" (
+  echo.
+  echo Dependency installation completed, but Electron was not installed correctly.
+  echo Expected: %CD%\node_modules\electron\dist\electron.exe
+  echo.
+  echo Run npm.cmd install in this folder and review any reported error.
+  echo.
+  pause
+  exit /b 2
 )
 
 start "" wscript.exe //B "%~dp0START-WINDOWS.vbs"
