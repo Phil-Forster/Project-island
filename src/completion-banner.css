@@ -1,0 +1,110 @@
+.completion-banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  min-height: 82px;
+  margin: 0 0 24px;
+  padding: 14px 16px 14px 20px;
+  overflow: hidden;
+  border: 1px solid rgba(112, 175, 118, .72);
+  border-radius: 6px;
+  background:
+    linear-gradient(90deg, rgba(5, 20, 14, .97) 0%, rgba(6, 28, 18, .94) 34%, rgba(8, 31, 20, .70) 56%, rgba(5, 14, 10, .26) 100%),
+    url('assets/app-background-island.webp') right 52% center / cover no-repeat;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, .025),
+    0 12px 26px rgba(0, 0, 0, .20);
+}
+
+.completion-banner[hidden] { display: none; }
+
+.completion-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(59, 152, 91, .07), transparent 38%),
+    linear-gradient(180deg, transparent 54%, rgba(21, 87, 50, .10));
+}
+
+.completion-banner__mark,
+.completion-banner__copy,
+.completion-banner__status {
+  position: relative;
+  z-index: 1;
+}
+
+.completion-banner__mark {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+}
+
+.completion-banner__mark img {
+  display: block;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .35));
+}
+
+.completion-banner__copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  max-width: 660px;
+}
+
+.completion-banner__eyebrow {
+  color: var(--earned);
+  font-size: .64rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.completion-banner__title {
+  color: var(--text);
+  font-size: 1.08rem;
+  line-height: 1.15;
+}
+
+.completion-banner__detail {
+  color: var(--muted);
+  font-size: .74rem;
+  line-height: 1.35;
+}
+
+.completion-banner__status {
+  display: grid;
+  min-width: 74px;
+  min-height: 42px;
+  place-items: center;
+  padding: 0 12px;
+  border: 1px solid rgba(199, 168, 93, .66);
+  border-radius: 4px;
+  background: rgba(52, 41, 18, .34);
+  color: var(--earned);
+  font-size: 1.12rem;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 0 18px rgba(199, 168, 93, .035);
+}
+
+@media (max-width: 760px) {
+  .completion-banner {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    padding: 14px 16px;
+  }
+
+  .completion-banner__status {
+    grid-column: 1 / -1;
+    justify-self: start;
+    min-height: 34px;
+  }
+}

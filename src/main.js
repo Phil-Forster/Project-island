@@ -40,7 +40,7 @@ function getDataServices() {
 
 
 const splashReadyArg = process.argv.find((arg) => arg.startsWith('--splash-ready-file='));
-const splashReadyFile = splashReadyArg ? splashReadyArg.slice('--splash-ready-file='.length).replace(/^"|"$/g, '') : null;
+const splashReadyFile = splashReadyArg ? splashReadyArg.slice('--splash-ready-file='.length).replace(/^\"|\"$/g, '') : null;
 let splashReadySignalled = false;
 
 function signalInstallerHandoffReady() {
@@ -190,6 +190,9 @@ function createWindow() {
   });
 
   mainWindow.removeMenu();
+  mainWindow.on('close', () => {
+    if (process.platform !== 'darwin') app.releaseSingleInstanceLock();
+  });
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https?:\/\//i.test(url)) {
       shell.openExternal(url);
