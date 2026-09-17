@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>Project Installer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="installer-shell" id="shell" aria-live="polite">
+    <section class="content-pane">
+      <header class="brand-row">
+        <img id="brandBadge" class="brand-badge" src="assets/badge.png" alt="" />
+        <div class="brand-copy">
+          <div id="projectName" class="project-name">Project</div>
+          <div id="gameName" class="game-name">Game Tracker</div>
+        </div>
+      </header>
+
+      <div class="state-stack">
+        <section class="state-panel is-active" data-state="ready">
+          <p class="eyebrow" id="readyEyebrow">READY TO INSTALL</p>
+          <h1 id="readyTitle">Install achievement tracker</h1>
+          <p class="lede" id="readyBody"></p>
+
+          <div class="path-card">
+            <div class="field-label-row">
+              <label for="installPath">INSTALL LOCATION</label>
+              <span class="scope-pill">CURRENT USER</span>
+            </div>
+            <div class="path-row">
+              <input id="installPath" type="text" spellcheck="false" autocomplete="off" aria-describedby="pathHelp" />
+              <button id="browseBtn" class="button button-secondary compact" type="button">Browse</button>
+            </div>
+            <p id="pathHelp" class="field-help">Installed only for this Windows account. Administrator approval is not required.</p>
+          </div>
+
+          <div class="info-strip">
+            <span class="info-dot"></span>
+            <span id="readyNote"></span>
+          </div>
+        </section>
+
+        <section class="state-panel" data-state="installing">
+          <p class="eyebrow" id="installingEyebrow">INSTALLING</p>
+          <h1 id="installingTitle">Installing</h1>
+          <p class="lede" id="installingBody">Preparing the deployment engine.</p>
+
+          <div class="progress-card" aria-label="Installation progress">
+            <div class="progress-meta">
+              <span id="progressStatus">Preparing installation</span>
+              <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack">
+              <div class="progress-fill" id="progressFill"></div>
+              <div class="progress-glint"></div>
+            </div>
+            <div class="progress-steps" id="progressSteps"></div>
+          </div>
+
+          <div class="locked-note">
+            <span class="locked-icon">◈</span>
+            <span>Keep this window open while files, shortcuts and Windows registration are updated.</span>
+          </div>
+        </section>
+
+        <section class="state-panel" data-state="complete">
+          <div class="success-mark" aria-hidden="true">✓</div>
+          <p class="eyebrow" id="completeEyebrow">INSTALLATION COMPLETE</p>
+          <h1 id="completeTitle">Ready to go</h1>
+          <p class="lede" id="completeBody"></p>
+
+          <button id="launchToggle" class="toggle-row" type="button" role="checkbox" aria-checked="true">
+            <span class="toggle-box"><span class="toggle-check">✓</span></span>
+            <span class="toggle-copy">
+              <strong id="launchLabel">Launch Project</strong>
+              <small>Start the tracker when Finish is selected.</small>
+            </span>
+          </button>
+        </section>
+
+        <section class="state-panel" data-state="confirm-uninstall">
+          <p class="eyebrow" id="removeEyebrow">REMOVE TRACKER</p>
+          <h1 id="removeTitle">Uninstall</h1>
+          <p class="lede" id="removeBody"></p>
+          <div class="warning-card">
+            <span class="warning-icon">!</span>
+            <div>
+              <strong>Your tracker data is not stored in the installation folder.</strong>
+              <p>The application files, shortcuts and Windows registration will be removed. Game saves and Steam data are not touched.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="state-panel" data-state="removing">
+          <p class="eyebrow">REMOVING</p>
+          <h1 id="removingTitle">Removing tracker</h1>
+          <p class="lede">The deployment engine is removing application files and Windows registration.</p>
+          <div class="progress-card" aria-label="Uninstall progress">
+            <div class="progress-meta">
+              <span id="removeProgressStatus">Preparing removal</span>
+              <span id="removeProgressPercent">0%</span>
+            </div>
+            <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="removeProgressTrack">
+              <div class="progress-fill" id="removeProgressFill"></div>
+              <div class="progress-glint"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="state-panel" data-state="uninstall-complete">
+          <div class="success-mark" aria-hidden="true">✓</div>
+          <p class="eyebrow">UNINSTALL COMPLETE</p>
+          <h1 id="uninstallCompleteTitle">Tracker removed</h1>
+          <p class="lede" id="uninstallCompleteBody"></p>
+        </section>
+
+        <section class="state-panel" data-state="error">
+          <div class="error-mark" aria-hidden="true">!</div>
+          <p class="eyebrow">ACTION REQUIRED</p>
+          <h1 id="errorTitle">Something interrupted the process</h1>
+          <p class="lede" id="errorBody">No additional changes will be made until you try again.</p>
+          <div class="error-detail" id="errorDetail"></div>
+        </section>
+      </div>
+
+      <footer class="action-bar">
+        <div class="build-meta">
+          <span id="versionLabel">v0.0.0</span>
+          <span class="meta-sep">•</span>
+          <span>Windows x64</span>
+        </div>
+        <div class="action-buttons">
+          <button id="secondaryBtn" class="button button-secondary" type="button">Cancel</button>
+          <button id="primaryBtn" class="button button-primary" type="button">Install</button>
+        </div>
+      </footer>
+    </section>
+
+    <aside class="visual-pane" aria-hidden="true">
+      <img class="hero-image" src="assets/hero.webp" alt="" />
+      <div class="hero-scrim"></div>
+      <div class="visual-grid"></div>
+      <button id="windowClose" class="window-close" type="button" aria-label="Close installer">×</button>
+      <div class="visual-topline">
+        <span id="visualCode">LOCAL TRACKER</span>
+        <span class="visual-led"></span>
+      </div>
+      <div class="visual-copy">
+        <div class="visual-rule"></div>
+        <div id="visualMotif" class="visual-motif">FIELD SYSTEM</div>
+        <div id="visualCaption" class="visual-caption">Local achievement companion</div>
+      </div>
+      <div class="visual-coordinate" id="visualCoordinate">LOCAL // READ ONLY</div>
+    </aside>
+  </main>
+
+  <section class="folder-picker" id="folderPicker" role="dialog" aria-modal="true" aria-labelledby="folderPickerTitle" hidden>
+    <div class="folder-picker-card">
+      <header class="folder-picker-header">
+        <div>
+          <p class="eyebrow">INSTALL LOCATION</p>
+          <h2 id="folderPickerTitle">Choose a folder</h2>
+        </div>
+        <button id="folderPickerClose" class="picker-close" type="button" aria-label="Close folder selector">×</button>
+      </header>
+      <div class="folder-picker-toolbar">
+        <button id="folderPickerUp" class="button button-secondary compact" type="button">Up</button>
+        <input id="folderPickerPath" type="text" spellcheck="false" autocomplete="off" aria-label="Current folder path" />
+        <button id="folderPickerGo" class="button button-secondary compact" type="button">Go</button>
+      </div>
+      <div class="folder-picker-list" id="folderPickerList" role="listbox" aria-label="Folders"></div>
+      <p class="folder-picker-message" id="folderPickerMessage" aria-live="polite"></p>
+      <footer class="folder-picker-actions">
+        <button id="folderPickerCancel" class="button button-secondary" type="button">Cancel</button>
+        <button id="folderPickerUse" class="button button-primary" type="button">Use this folder</button>
+      </footer>
+    </div>
+  </section>
+  <script src="renderer.js"></script>
+</body>
+</html>

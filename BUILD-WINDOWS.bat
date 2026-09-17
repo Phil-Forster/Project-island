@@ -1,17 +1,14 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
-title SOTF Achievement Tracker - Windows Build
+title SOTF Achievement Tracker - Bespoke Windows Build
 
 set "ELECTRON_LOCK=%CD%\node_modules\electron\dist\resources\default_app.asar"
 set "BUILDER_CLI=%CD%\node_modules\electron-builder\out\cli\cli.js"
-for /f "usebackq delims=" %%V in (`node -p "require('./package.json').version" 2^>nul`) do set "APP_VERSION=%%V"
-set "INSTALLER_NAME=SOTF-Achievement-Tracker-Setup-v%APP_VERSION%.exe"
-set "RELEASE_DIR=%CD%\RELEASE"
 
 echo.
 echo ================================================
-echo  SOTF Achievement Tracker - Windows x64 Build
+echo  Project Island - Bespoke Windows x64 Build
 echo ================================================
 echo.
 
@@ -33,74 +30,37 @@ if errorlevel 1 (
   exit /b 1
 )
 
-rem The development app runs from node_modules\electron. npm cannot update
-rem that Electron installation while the tracker itself is still open.
 if exist "%ELECTRON_LOCK%" (
   powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command ^
     "$p=$env:ELECTRON_LOCK; try { $s=[System.IO.File]::Open($p,[System.IO.FileMode]::Open,[System.IO.FileAccess]::ReadWrite,[System.IO.FileShare]::None); $s.Dispose(); exit 0 } catch { exit 20 }"
   if errorlevel 20 (
     echo.
     echo BUILD BLOCKED: the development Electron runtime is currently in use.
-    echo.
     echo Close SOTF Achievement Tracker completely, then run BUILD-WINDOWS.bat again.
-    echo Windows is currently locking:
-    echo   %ELECTRON_LOCK%
-    echo.
-    echo This check prevents npm EBUSY errors and does not terminate other Electron apps.
     echo.
     pause
     exit /b 20
   )
 )
 
-echo Running installer preflight...
-echo.
-call node "%CD%\tools\installer-preflight.js"
-set "PREFLIGHT_EXIT=%ERRORLEVEL%"
-if not "%PREFLIGHT_EXIT%"=="0" (
-  echo.
-  echo Installer preflight failed with exit code %PREFLIGHT_EXIT%.
-  echo The Windows build has not started.
-  echo.
-  pause
-  exit /b %PREFLIGHT_EXIT%
-)
-
 if exist "%BUILDER_CLI%" goto build
 
-echo Installing pinned build dependency electron-builder 26.15.7...
+echo Installing pinned build dependencies...
 echo.
-call npm install --save-dev electron-builder@26.15.7 --no-audit --no-fund
-set "NPM_EXIT=%ERRORLEVEL%"
-
-if not "%NPM_EXIT%"=="0" (
+call npm install --no-audit --no-fund
+if errorlevel 1 (
   echo.
-  echo Dependency installation failed with exit code %NPM_EXIT%.
-  echo The Windows build has not started.
+  echo Dependency installation failed.
   echo.
   pause
-  exit /b %NPM_EXIT%
-)
-
-if not exist "%BUILDER_CLI%" (
-  echo.
-  echo Dependency installation completed but electron-builder was not found at:
-  echo   %BUILDER_CLI%
-  echo.
-  echo Delete node_modules only if you want a clean dependency reinstall, then run
-  echo START-WINDOWS.bat once before returning to this build script.
-  echo.
-  pause
-  exit /b 2
+  exit /b 1
 )
 
 :build
+echo Running bespoke deployment build...
 echo.
-echo Building Windows x64 installer...
-echo.
-call node "%BUILDER_CLI%" --win nsis --x64
+call node "%CD%\tools\build-deployment.js"
 set "BUILD_EXIT=%ERRORLEVEL%"
-
 if not "%BUILD_EXIT%"=="0" (
   echo.
   echo Windows build failed with exit code %BUILD_EXIT%. Review the output above.
@@ -110,28 +70,9 @@ if not "%BUILD_EXIT%"=="0" (
 )
 
 echo.
-if not exist "%RELEASE_DIR%" mkdir "%RELEASE_DIR%" >nul 2>nul
-if exist "%CD%\dist\%INSTALLER_NAME%" (
-  copy /y "%CD%\dist\%INSTALLER_NAME%" "%RELEASE_DIR%\%INSTALLER_NAME%" >nul
-)
-
-echo Build complete.
+echo Build complete. The distributable Setup EXE is in:
+echo   %CD%\RELEASE
 echo.
-if exist "%RELEASE_DIR%\%INSTALLER_NAME%" (
-  echo Distribution installer:
-  echo   %RELEASE_DIR%\%INSTALLER_NAME%
-  echo.
-  echo This single Setup EXE is the file to copy to USB or send to another PC.
-  echo The unpacked developer test build remains in:
-  echo   %CD%\dist\win-unpacked
-  echo.
-  start "" explorer.exe "%RELEASE_DIR%"
-) else (
-  echo The build completed, but the expected installer was not found at:
-  echo   %CD%\dist\%INSTALLER_NAME%
-  echo.
-  echo Review the dist folder before distributing this build.
-  if exist "%CD%\dist" start "" explorer.exe "%CD%\dist"
-)
+start "" explorer.exe "%CD%\RELEASE"
 pause
 endlocal

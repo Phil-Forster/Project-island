@@ -1,0 +1,8 @@
+{
+  "name": "project-tracker-deployment-ui",
+  "version": "1.3.7",
+  "private": true,
+  "main": "main.js",
+  "description": "Bespoke installer/uninstaller shell for Project Island",
+  "author": "Phil Forster"
+}

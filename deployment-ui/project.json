@@ -1,0 +1,36 @@
+{
+  "version": "1.3.7",
+  "projectSlug": "project-island",
+  "projectName": "Project Island",
+  "gameName": "Sons of the Forest",
+  "installFolderName": "SOTF Achievement Tracker",
+  "appExecutableName": "SOTF Achievement Tracker.exe",
+  "rawUninstallerName": "Uninstall SOTF Achievement Tracker.exe",
+  "customUninstallerName": "Project Island Uninstaller.exe",
+  "setupArtifactName": "SOTF-Achievement-Tracker-Setup-v${version}.exe",
+  "accent": "#7f9b63",
+  "accentBright": "#a8bf72",
+  "accentDim": "#50633d",
+  "visual": {
+    "code": "ISLAND // FIELD LINK",
+    "motif": "FOREST SYSTEM",
+    "caption": "Local achievement companion \u00b7 save evidence ready",
+    "coordinate": "FOREST // LOCAL // READ ONLY"
+  },
+  "frameworkVersion": "2.0.4",
+  "copy": {
+    "readyEyebrow": "READY FOR THE ISLAND",
+    "readyTitle": "Install Project Island",
+    "readyBody": "A focused local companion for Sons of the Forest achievements, Steam state and optional save evidence.",
+    "readyNote": "The tracker is read-only. It does not modify game saves, Steam data or Sons of the Forest files.",
+    "completeBody": "The achievement tracker is installed and ready to read your local Steam state.",
+    "removeBody": "Remove the Project Island tracker from this PC. Game saves, Steam data and user files remain untouched.",
+    "uninstallCompleteBody": "Project Island has been removed. Sons of the Forest and its saves were not changed.",
+    "steps": [
+      "Prepare",
+      "Deploy",
+      "Register",
+      "Finalise"
+    ]
+  }
+}

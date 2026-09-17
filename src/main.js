@@ -38,6 +38,21 @@ function getDataServices() {
 }
 
 
+
+const splashReadyArg = process.argv.find((arg) => arg.startsWith('--splash-ready-file='));
+const splashReadyFile = splashReadyArg ? splashReadyArg.slice('--splash-ready-file='.length).replace(/^"|"$/g, '') : null;
+let splashReadySignalled = false;
+
+function signalInstallerHandoffReady() {
+  if (!splashReadyFile || splashReadySignalled) return;
+  splashReadySignalled = true;
+  try {
+    fs.writeFileSync(splashReadyFile, 'ready', 'utf8');
+  } catch {
+    // Installer handoff is best-effort; application startup must never depend on it.
+  }
+}
+
 function createSplashWindow() {
   splashWindow = new BrowserWindow({
     width: 900,
@@ -72,6 +87,7 @@ function createSplashWindow() {
     if (splashWindow && !splashWindow.isDestroyed()) {
       splashWindow.show();
       splashWindow.focus();
+      signalInstallerHandoffReady();
     }
   };
   const onSplashVisualReady = (event) => {

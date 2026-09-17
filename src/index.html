@@ -65,10 +65,22 @@
       </section>
       <section class="toolbar" aria-label="Achievement filters">
         <div class="segmented" role="group" aria-label="State filter">
-          <button class="filter active" data-filter="all" type="button" aria-pressed="true">All</button>
-          <button class="filter" data-filter="unlocked" type="button" aria-pressed="false">Unlocked</button>
-          <button class="filter" data-filter="locked" type="button" aria-pressed="false">Locked</button>
-          <button class="filter" data-filter="unknown" type="button" aria-pressed="false">Unknown</button>
+          <button class="filter active" data-filter="all" type="button" aria-pressed="true">
+            <span class="filter__icon" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="12" y="3" width="5" height="5" rx="1"/><rect x="3" y="12" width="5" height="5" rx="1"/><rect x="12" y="12" width="5" height="5" rx="1"/></svg></span>
+            <span class="filter__label">All</span>
+          </button>
+          <button class="filter" data-filter="unlocked" type="button" aria-pressed="false">
+            <span class="filter__icon" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><circle cx="10" cy="10" r="7"/><path d="m6.8 10.2 2 2.1 4.6-4.8"/></svg></span>
+            <span class="filter__label">Unlocked</span>
+          </button>
+          <button class="filter" data-filter="locked" type="button" aria-pressed="false">
+            <span class="filter__icon" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><rect x="4.5" y="8.5" width="11" height="8" rx="2"/><path d="M7 8.5V6.8a3 3 0 0 1 6 0v1.7"/><circle cx="10" cy="12.5" r=".8"/></svg></span>
+            <span class="filter__label">Locked</span>
+          </button>
+          <button class="filter" data-filter="unknown" type="button" aria-pressed="false">
+            <span class="filter__icon" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><circle cx="10" cy="10" r="7"/><path d="M7.8 7.7a2.4 2.4 0 0 1 4.6.9c0 1.9-2.4 2-2.4 3.5"/><circle cx="10" cy="14.6" r=".7"/></svg></span>
+            <span class="filter__label">Unknown</span>
+          </button>
         </div>
         <label class="sr-only" for="search">Search achievements</label>
         <input id="search" type="search" placeholder="Search field records" autocomplete="off">
@@ -99,28 +111,28 @@
 
         <nav class="project-footer__links" aria-label="Project links and identity">
           <div class="project-footer__link-item">
-            <span class="project-footer__link-icon"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M4 19V8.8L12 4l8 4.8V19"/><path d="M8.5 19v-6h7v6"/></svg></span>
+            <span class="project-footer__link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 8.5h17M8.5 8.5V20"/><path d="M12 12h5M12 15.5h3.5"/></svg></span>
             <span class="project-footer__link-copy">
               <span class="project-footer__link-label">PROJECT</span>
               <span class="project-footer__link-value">Project Island</span>
             </span>
           </div>
           <a class="project-footer__link-item" href="https://github.com/Phil-Forster/Project-island" target="_blank" rel="noopener noreferrer">
-            <span class="project-footer__link-icon"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M8 5.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM16 12.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/><path d="M10.8 8.5H14a2 2 0 0 1 2 2v2M8 11.5v5a2 2 0 0 0 2 2h3"/></svg></span>
+            <span class="project-footer__link-icon project-footer__link-icon--brand" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.76-.24.76-.54v-2.08c-3.11.67-3.77-1.32-3.77-1.32-.51-1.29-1.24-1.63-1.24-1.63-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 1.7 2.61 1.21 3.25.93.1-.72.39-1.21.71-1.49-2.48-.28-5.09-1.24-5.09-5.53 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.43.11-2.96 0 0 .94-.3 3.08 1.14A10.65 10.65 0 0 1 12 6.47c.96 0 1.91.13 2.8.38 2.13-1.44 3.07-1.14 3.07-1.14.61 1.53.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3 0 4.3-2.62 5.24-5.11 5.52.4.35.76 1.03.76 2.08v3.08c0 .3.2.64.77.53A11.2 11.2 0 0 0 12 .8Z"/></svg></span>
             <span class="project-footer__link-copy">
               <span class="project-footer__link-label">GITHUB</span>
               <span class="project-footer__link-value">View Source</span>
             </span>
           </a>
           <div class="project-footer__link-item">
-            <span class="project-footer__link-icon"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.8 20c.5-4 2.6-6 6.2-6s5.7 2 6.2 6"/></svg></span>
+            <span class="project-footer__link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10.5" r="2.25"/><path d="M5.9 16c.55-1.75 1.58-2.65 3.1-2.65s2.55.9 3.1 2.65M14 9.5h3.5M14 13h3.5"/></svg></span>
             <span class="project-footer__link-copy">
               <span class="project-footer__link-label">AUTHOR</span>
               <span class="project-footer__link-value">Phil Forster</span>
             </span>
           </div>
           <a class="project-footer__link-item" href="https://philforster.co.uk" target="_blank" rel="noopener noreferrer">
-            <span class="project-footer__link-icon"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.8 12h16.4M12 3.5c2.4 2.5 3.6 5.3 3.6 8.5S14.4 18 12 20.5C9.6 18 8.4 15.2 8.4 12S9.6 6 12 3.5Z"/></svg></span>
+            <span class="project-footer__link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 8.5h18"/><circle cx="6" cy="6.3" r=".6"/><circle cx="8.5" cy="6.3" r=".6"/><path d="m9 12-2 2 2 2M15 12l2 2-2 2M13 11.5l-2 5"/></svg></span>
             <span class="project-footer__link-copy">
               <span class="project-footer__link-label">PORTFOLIO</span>
               <span class="project-footer__link-value">philforster.co.uk</span>
