@@ -13,7 +13,7 @@ test('deployment shell detects an existing registered install and presents updat
   const engine = read('build/deployment-engine.nsh');
 
   assert.match(main, /function readInstalledState\(/);
-  assert.match(main, /HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall/);
+  assert.ok(main.includes(String.raw`const uninstallRoot = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall';`));
   assert.match(main, /\['query', uninstallRoot, '\/s'\]/);
   assert.doesNotMatch(main, /\['query', uninstallRoot, '\/s', '\/f'/);
   assert.match(main, /function installDirFromUninstallString\(/);
