@@ -38,51 +38,80 @@ function parseRegistryValue(text, name) {
   return match?.[1]?.trim() || null;
 }
 
+function parseRegistryEntries(text) {
+  const entries = [];
+  let current = null;
+  for (const line of String(text || '').split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (/^HKEY_CURRENT_USER\\/i.test(trimmed)) {
+      if (current) entries.push(current);
+      current = { key: trimmed, text: '' };
+      continue;
+    }
+    if (current) current.text += `${line}\n`;
+  }
+  if (current) entries.push(current);
+  return entries;
+}
+
+function installDirFromUninstallString(uninstallString) {
+  const text = String(uninstallString || '').trim();
+  if (!text) return null;
+  const argMatch = text.match(/--install-dir=(?:"([^"]+)"|([^\s]+))/i);
+  if (argMatch?.[1] || argMatch?.[2]) return (argMatch[1] || argMatch[2]).trim();
+  const exeMatch = text.match(/^"([^"]+\.exe)"/i) || text.match(/^([^\s]+\.exe)/i);
+  return exeMatch?.[1] ? path.dirname(exeMatch[1]) : null;
+}
+
+function hasInstalledPayload(candidate) {
+  if (!candidate) return false;
+  return [
+    project.appExecutableName,
+    project.customUninstallerName,
+    project.rawUninstallerName,
+  ].some((name) => fs.existsSync(path.join(candidate, name)));
+}
+
 function readInstalledState() {
   const fallbackDir = defaultInstallDir();
-  const fallbackApp = path.join(fallbackDir, project.appExecutableName);
 
   if (process.platform === 'win32') {
     const uninstallRoot = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall';
     try {
-      const search = spawnSync('reg.exe', ['query', uninstallRoot, '/s', '/f', project.installFolderName], {
+      const query = spawnSync('reg.exe', ['query', uninstallRoot, '/s'], {
         encoding: 'utf8',
         windowsHide: true,
-        timeout: 3000,
+        timeout: 4000,
+        maxBuffer: 1024 * 1024 * 4,
       });
-      if (!search.error && search.status === 0) {
-        const keys = [...new Set(
-          String(search.stdout || '')
-            .split(/\r?\n/)
-            .map((line) => line.trim())
-            .filter((line) => /^HKEY_CURRENT_USER\\/i.test(line))
-        )];
-        for (const key of keys) {
-          const query = spawnSync('reg.exe', ['query', key], {
-            encoding: 'utf8',
-            windowsHide: true,
-            timeout: 1500,
-          });
-          if (query.error || query.status !== 0) continue;
-          const displayName = parseRegistryValue(query.stdout, 'DisplayName');
-          if (!displayName || displayName.toLowerCase() !== project.installFolderName.toLowerCase()) continue;
-          const registeredDir = parseRegistryValue(query.stdout, 'InstallLocation') || fallbackDir;
-          const appPath = path.join(registeredDir, project.appExecutableName);
-          if (!fs.existsSync(appPath)) continue;
+      if (!query.error && query.status === 0) {
+        for (const entry of parseRegistryEntries(query.stdout)) {
+          const displayName = parseRegistryValue(entry.text, 'DisplayName');
+          const uninstallString = parseRegistryValue(entry.text, 'UninstallString');
+          const identifiesProject = displayName?.toLowerCase() === project.installFolderName.toLowerCase()
+            || String(uninstallString || '').toLowerCase().includes(project.customUninstallerName.toLowerCase())
+            || String(uninstallString || '').toLowerCase().includes(project.appExecutableName.toLowerCase());
+          if (!identifiesProject) continue;
+
+          const registeredDir = parseRegistryValue(entry.text, 'InstallLocation')
+            || installDirFromUninstallString(uninstallString)
+            || fallbackDir;
+          if (!hasInstalledPayload(registeredDir)) continue;
+
           return {
             installed: true,
-            installedVersion: parseRegistryValue(query.stdout, 'DisplayVersion'),
+            installedVersion: parseRegistryValue(entry.text, 'DisplayVersion'),
             installDir: registeredDir,
             source: 'uninstall-registry',
           };
         }
       }
     } catch {
-      // Fall back to the standard current-user installation directory.
+      // Fall through to the known per-user installation directory.
     }
   }
 
-  const installed = fs.existsSync(fallbackApp);
+  const installed = hasInstalledPayload(fallbackDir);
   return {
     installed,
     installedVersion: null,
