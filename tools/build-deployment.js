@@ -27,6 +27,52 @@ function clean(target) {
   fs.rmSync(target, { recursive: true, force: true });
 }
 
+function reportSignatureStatus(file, index, total) {
+  const label = path.basename(file);
+  console.log(`\n[SignTool ${index}/${total}] ${label}`);
+  console.log(`  File: ${file}`);
+
+  const command = [
+    '$signature = Get-AuthenticodeSignature -LiteralPath $env:SIGNATURE_FILE;',
+    '$subject = if ($signature.SignerCertificate) { $signature.SignerCertificate.Subject } else { $null };',
+    '[pscustomobject]@{ Status = $signature.Status.ToString(); Subject = $subject } | ConvertTo-Json -Compress'
+  ].join(' ');
+
+  const result = spawnSync('powershell.exe', [
+    '-NoLogo',
+    '-NoProfile',
+    '-NonInteractive',
+    '-Command',
+    command,
+  ], {
+    cwd: root,
+    env: { ...process.env, SIGNATURE_FILE: file },
+    encoding: 'utf8',
+    windowsHide: true,
+  });
+
+  if (result.error || result.status !== 0) {
+    const detail = result.error?.message || String(result.stderr || '').trim() || `PowerShell exited with code ${result.status}.`;
+    console.log(`  Authenticode verification: UNAVAILABLE - ${detail}`);
+    return;
+  }
+
+  try {
+    const signature = JSON.parse(String(result.stdout || '').trim());
+    if (signature.Status === 'Valid') {
+      console.log(`  Authenticode verification: VALID${signature.Subject ? ` - ${signature.Subject}` : ''}`);
+      return;
+    }
+    if (signature.Status === 'NotSigned') {
+      console.log('  Authenticode verification: NOT SIGNED (expected - no code-signing certificate is configured).');
+      return;
+    }
+    console.log(`  Authenticode verification: ${String(signature.Status || 'UNKNOWN').toUpperCase()}${signature.Subject ? ` - ${signature.Subject}` : ''}`);
+  } catch {
+    console.log(`  Authenticode verification: UNREADABLE - ${String(result.stdout || '').trim() || 'no status returned'}`);
+  }
+}
+
 if (!fs.existsSync(builderCli)) fail('electron-builder is not installed. Run npm install first.');
 
 console.log('================================================');
@@ -52,12 +98,14 @@ run(process.execPath, [builderCli, '--win', 'portable', '--x64', '--config', pat
 
 const uninstallerUi = path.join(generated, project.customUninstallerName);
 if (!fs.existsSync(uninstallerUi)) fail(`Expected uninstaller shell was not produced: ${uninstallerUi}`);
+reportSignatureStatus(uninstallerUi, 1, 3);
 
 console.log('\n[2/3] Building silent NSIS deployment engine...\n');
 run(process.execPath, [builderCli, '--win', 'nsis', '--x64'], { cwd: root, env: process.env });
 
 const enginePath = path.join(root, 'dist', 'engine', `deployment-engine-${packageJson.version}.exe`);
 if (!fs.existsSync(enginePath)) fail(`Expected deployment engine was not produced: ${enginePath}`);
+reportSignatureStatus(enginePath, 2, 3);
 
 console.log('\n[3/3] Building bespoke installer shell...\n');
 run(process.execPath, [builderCli, '--win', 'portable', '--x64', '--config', path.join(uiDir, 'electron-builder.config.js')], {
@@ -68,6 +116,7 @@ run(process.execPath, [builderCli, '--win', 'portable', '--x64', '--config', pat
 const finalName = project.setupArtifactName.replace('${version}', packageJson.version);
 const finalPath = path.join(root, 'dist', finalName);
 if (!fs.existsSync(finalPath)) fail(`Expected final Setup executable was not produced: ${finalPath}`);
+reportSignatureStatus(finalPath, 3, 3);
 
 fs.copyFileSync(finalPath, path.join(release, finalName));
 

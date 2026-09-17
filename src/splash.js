@@ -21,9 +21,9 @@ function applyStatus(payload = {}) {
 applyStatus({ label: 'Starting achievement tracker…', progress: 5 });
 window.sotfSplash?.onStatus(applyStatus);
 
-// Let Electron paint the lightweight splash shell before starting the large
-// background artwork request. This keeps ready-to-show off the image path.
-window.sotfSplash?.notifyVisualReady();
-setTimeout(() => {
-  if (art?.dataset.src) art.src = art.dataset.src;
-}, 60);
+// Start the large background artwork request during initial rendering so
+// Electron's ready-to-show paint already has the scene available. Delaying
+// this request caused a visible shell/art pop in packaged builds.
+if (art?.dataset.src && !art.getAttribute('src')) {
+  art.src = art.dataset.src;
+}

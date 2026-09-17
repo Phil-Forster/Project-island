@@ -31,13 +31,6 @@ function safeStat(value) {
   }
 }
 
-function listDirectories(dir) {
-  if (!exists(dir)) return [];
-  return fs.readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => path.join(dir, entry.name));
-}
-
 function collectSavePackages(root, maxDepth = 5) {
   const found = [];
   const queue = [{ dir: root, depth: 0 }];

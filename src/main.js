@@ -15,7 +15,6 @@ let manualSaveRoot = null;
 let cachedSteam = { result: null, fetchedAt: 0 };
 let dataServices = null;
 let mainCreateFallback = null;
-let splashShowFallback = null;
 
 const STEAM_CACHE_TTL_MS = 60_000;
 const APP_USER_MODEL_ID = 'uk.co.philforster.sotfachievementtracker';
@@ -36,8 +35,6 @@ function getDataServices() {
   }
   return dataServices;
 }
-
-
 
 const splashReadyArg = process.argv.find((arg) => arg.startsWith('--splash-ready-file='));
 const splashReadyFile = splashReadyArg ? splashReadyArg.slice('--splash-ready-file='.length).replace(/^\"|\"$/g, '') : null;
@@ -76,26 +73,12 @@ function createSplashWindow() {
   });
 
   let mainStarted = false;
-  let splashPageReady = false;
-  let splashArtReady = false;
-  const showDecodedSplash = () => {
-    if (!splashPageReady || !splashArtReady) return;
-    if (splashShowFallback) {
-      clearTimeout(splashShowFallback);
-      splashShowFallback = null;
-    }
-    if (splashWindow && !splashWindow.isDestroyed()) {
-      splashWindow.show();
-      splashWindow.focus();
-      signalInstallerHandoffReady();
-    }
+  const showSplash = () => {
+    if (!splashWindow || splashWindow.isDestroyed()) return;
+    splashWindow.show();
+    splashWindow.focus();
+    signalInstallerHandoffReady();
   };
-  const onSplashVisualReady = (event) => {
-    if (!splashWindow || splashWindow.isDestroyed() || event.sender !== splashWindow.webContents) return;
-    splashArtReady = true;
-    showDecodedSplash();
-  };
-  ipcMain.on('splash:visual-ready', onSplashVisualReady);
 
   const startMain = () => {
     if (mainStarted) return;
@@ -112,31 +95,19 @@ function createSplashWindow() {
 
   splashWindow.loadFile(path.join(__dirname, 'splash.html'));
   splashWindow.once('ready-to-show', () => {
-    splashPageReady = true;
-    showDecodedSplash();
-    // The splash renderer decodes its artwork before it is shown. Dashboard
-    // startup can now continue without competing with that first image paint.
+    showSplash();
+    // The splash shell is now paint-ready, so dashboard startup can continue
+    // while the deferred background artwork finishes loading independently.
     startMain();
   });
   splashWindow.webContents.once('did-fail-load', startMain);
   // A damaged splash must never prevent the application itself from starting.
   mainCreateFallback = setTimeout(startMain, 1500);
-  // If decoding fails unexpectedly, still show the loaded splash document.
-  splashShowFallback = setTimeout(() => {
-    splashArtReady = true;
-    showDecodedSplash();
-  }, 1500);
 
   splashWindow.on('closed', () => {
-    ipcMain.removeListener('splash:visual-ready', onSplashVisualReady);
-    if (splashShowFallback) {
-      clearTimeout(splashShowFallback);
-      splashShowFallback = null;
-    }
     splashWindow = null;
   });
 }
-
 
 function updateSplashStatus(label, progress) {
   if (!splashWindow || splashWindow.isDestroyed()) return;
@@ -162,7 +133,6 @@ function revealMainWindow() {
   }
   if (splashWindow && !splashWindow.isDestroyed()) splashWindow.close();
 }
-
 
 function scheduleMainReveal(delayMs = 700) {
   if (dashboardRevealFallback) clearTimeout(dashboardRevealFallback);
@@ -413,7 +383,6 @@ if (!gotSingleInstanceLock) {
     if (splashFailSafe) clearTimeout(splashFailSafe);
     if (dashboardRevealFallback) clearTimeout(dashboardRevealFallback);
     if (mainCreateFallback) clearTimeout(mainCreateFallback);
-    if (splashShowFallback) clearTimeout(splashShowFallback);
   });
 
   app.on('window-all-closed', () => {

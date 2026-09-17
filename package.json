@@ -21,8 +21,11 @@
   "build": {
     "appId": "uk.co.philforster.sotfachievementtracker",
     "productName": "SOTF Achievement Tracker",
-    "copyright": "Copyright \u00a9 2026 Phil Forster",
-    "asar": false,
+    "copyright": "Copyright © 2026 Phil Forster",
+    "asar": true,
+    "asarUnpack": [
+      "src/steam-helper.ps1"
+    ],
     "compression": "normal",
     "directories": {
       "output": "dist/engine",
