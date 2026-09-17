@@ -56,11 +56,15 @@ assert(main.includes("deployment:list-directory"), 'deployment shell must provid
 assert(!/ping\s+127\.0\.0\.1|spawn\(['\"]cmd\.exe/i.test(main), 'deployment shell must not use visible cmd/ping cleanup.');
 assert(main.includes("'-WindowStyle', 'Hidden'") && main.includes('powershell.exe'), 'temporary uninstaller cleanup must run hidden without a console window.');
 assert(main.includes('--splash-ready-file=') && main.includes('splashReady'), 'installer launch handoff must wait for the application splash signal.');
+assert(main.includes('readInstalledState') && main.includes('DisplayVersion') && main.includes('InstallLocation'), 'installer shell must detect an existing registered installation before choosing install/update mode.');
 const renderer = fs.readFileSync(path.join(root, 'deployment-ui', 'renderer.js'), 'utf8');
 assert(renderer.includes('folderPicker') && renderer.includes('listDirectory'), 'deployment renderer must use the bespoke in-window folder selector.');
+assert(renderer.includes('EXISTING INSTALLATION DETECTED') && renderer.includes("isUpdateMode() ? 'Update' : 'Install'"), 'deployment renderer must present Update when an existing installation is detected.');
 const indexHtml = fs.readFileSync(path.join(root, 'deployment-ui', 'index.html'), 'utf8');
 assert(indexHtml.includes('CURRENT USER'), 'installer UI must identify the current-user deployment scope.');
 assert(!indexHtml.includes('ALL USERS'), 'installer UI must not advertise all-users deployment.');
+const splash = fs.readFileSync(path.join(root, 'src', 'splash.js'), 'utf8');
+assert(splash.includes('art.src = art.dataset.src') && !/setTimeout\([\s\S]*?art\.src = art\.dataset\.src/.test(splash), 'splash artwork must start loading during initial rendering, not after a delayed timer.');
 
 const hash = crypto.createHash('sha256');
 for (const file of requiredShared) hash.update(fs.readFileSync(path.join(root, 'deployment-ui', file)));
