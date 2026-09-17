@@ -50,3 +50,17 @@ test('completion banner assets are wired into the tracker shell', () => {
   assert.match(html, /completion-banner\.js/);
   assert.ok(html.indexOf('renderer.js') < html.indexOf('completion-banner.js'));
 });
+
+test('completion banner follows the themed family presentation', () => {
+  const script = fs.readFileSync(path.join(__dirname, '..', 'src', 'completion-banner.js'), 'utf8');
+  const styles = fs.readFileSync(path.join(__dirname, '..', 'src', 'completion-banner.css'), 'utf8');
+
+  assert.match(script, /SURVIVAL RECORD COMPLETE/);
+  assert.match(script, /All achievements complete/);
+  assert.match(script, /Island record complete/);
+  assert.match(script, /project-island-badge\.webp/);
+  assert.match(script, /insertAdjacentElement\('afterend', banner\)/);
+  assert.doesNotMatch(script, /Steam confirms all/);
+  assert.match(styles, /app-background-island\.webp/);
+  assert.match(styles, /\.completion-banner__status/);
+});
