@@ -7,6 +7,13 @@ const { readAchievementStatMap } = require('./steam-schema-reader');
 
 const APP_ID = '1326470';
 
+function resolveBundledFile(filename) {
+  const sourcePath = path.join(__dirname, filename);
+  const asarSegment = `${path.sep}app.asar${path.sep}`;
+  if (!sourcePath.includes(asarSegment)) return sourcePath;
+  return sourcePath.replace(asarSegment, `${path.sep}app.asar.unpacked${path.sep}`);
+}
+
 function uniqueExisting(paths) {
   const seen = new Set();
   return paths.filter((value) => {
@@ -280,7 +287,7 @@ function readLocalSteamAchievements(expectedSteamId) {
   const discovery = discoverGamePath();
   if (!discovery.ok) return { ...discovery, source: 'steam-local-api', rows: [] };
 
-  const helper = path.join(__dirname, 'steam-helper.ps1');
+  const helper = resolveBundledFile('steam-helper.ps1');
   if (!fs.existsSync(helper)) {
     return { ok: false, source: 'steam-local-api', rows: [], gamePath: discovery.gamePath, dllPath: discovery.dllPath, error: 'Steam helper script is missing.' };
   }
