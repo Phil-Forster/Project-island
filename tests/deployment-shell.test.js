@@ -14,6 +14,11 @@ test('deployment shell detects an existing registered install and presents updat
 
   assert.match(main, /function readInstalledState\(/);
   assert.match(main, /HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Uninstall/);
+  assert.match(main, /\['query', uninstallRoot, '\/s'\]/);
+  assert.doesNotMatch(main, /\['query', uninstallRoot, '\/s', '\/f'/);
+  assert.match(main, /function installDirFromUninstallString\(/);
+  assert.match(main, /--install-dir=/);
+  assert.match(main, /project\.customUninstallerName/);
   assert.match(main, /DisplayVersion/);
   assert.match(main, /InstallLocation/);
   assert.match(main, /installedState\.installed/);
@@ -21,6 +26,14 @@ test('deployment shell detects an existing registered install and presents updat
   assert.match(renderer, /isUpdateMode\(\) \? 'Update' : 'Install'/);
   assert.match(renderer, /Updating…/);
   assert.match(engine, /InstallLocation "\$INSTDIR"/);
+});
+
+test('legacy Project Island uninstall registration can supply the install directory', () => {
+  const main = read('deployment-ui/main.js');
+  const legacyUninstall = '"C:\\Users\\Phil\\AppData\\Local\\Programs\\SOTF Achievement Tracker\\Project Island Uninstaller.exe" --mode=uninstall --install-dir="C:\\Users\\Phil\\AppData\\Local\\Programs\\SOTF Achievement Tracker"';
+
+  assert.match(main, /argMatch = text\.match\(\/--install-dir=/);
+  assert.match(legacyUninstall, /--install-dir="C:\\Users\\Phil\\AppData\\Local\\Programs\\SOTF Achievement Tracker"/);
 });
 
 test('deployment shell scripts remain syntactically valid', () => {
