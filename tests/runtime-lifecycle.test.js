@@ -21,7 +21,7 @@ test('uses BrowserWindow readiness for the visible splash and preserves installe
 
   assert.match(main, /--splash-ready-file=/);
   assert.match(main, /splashWindow\.once\('ready-to-show',[\s\S]*?showSplash\(\);/);
-  assert.match(main, /function showSplash\([\s\S]*?signalInstallerHandoffReady\(\);/);
+  assert.match(main, /const showSplash\s*=\s*\(\)\s*=>\s*\{[\s\S]*?signalInstallerHandoffReady\(\);/);
   assert.doesNotMatch(main, /splash:visual-ready|splashShowFallback|splashArtReady|splashPageReady/);
   assert.doesNotMatch(preload, /notifyVisualReady|splash:visual-ready/);
   assert.doesNotMatch(renderer, /notifyVisualReady|splash:visual-ready/);
