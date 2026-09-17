@@ -3,9 +3,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-test('releases the Electron single-instance lock before quitting on Windows', () => {
+test('releases the Electron single-instance lock as the main window starts closing on Windows', () => {
   const source = fs.readFileSync(path.join(__dirname, '..', 'src', 'main.js'), 'utf8');
-  const windowCloseBlock = source.match(/app\.on\('window-all-closed',[\s\S]*?\n  \}\);/);
-  assert.ok(windowCloseBlock, 'window-all-closed handler should exist');
-  assert.match(windowCloseBlock[0], /app\.releaseSingleInstanceLock\(\);[\s\S]*app\.quit\(\);/);
+  const closeBlock = source.match(/mainWindow\.on\('close',[\s\S]*?\n  \}\);/);
+  assert.ok(closeBlock, 'main-window close handler should exist');
+  assert.match(closeBlock[0], /app\.releaseSingleInstanceLock\(\);/);
 });
