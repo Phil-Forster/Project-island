@@ -3,7 +3,6 @@
 const label = document.getElementById('splashStatus');
 const fill = document.getElementById('splashProgressFill');
 const progress = document.getElementById('splashProgress');
-const art = document.querySelector('.splash__art');
 
 function applyStatus(payload = {}) {
   const nextLabel = typeof payload.label === 'string' && payload.label.trim()
@@ -21,22 +20,7 @@ function applyStatus(payload = {}) {
 applyStatus({ label: 'Starting achievement tracker…', progress: 5 });
 window.sotfSplash?.onStatus(applyStatus);
 
-async function notifyWhenArtworkIsPaintable() {
-  try {
-    if (art && !art.complete) {
-      await new Promise((resolve) => {
-        art.addEventListener('load', resolve, { once: true });
-        art.addEventListener('error', resolve, { once: true });
-      });
-    }
-    if (art?.decode) await art.decode();
-  } catch {
-    // The main process has its own fail-safe; a decode error must not block startup.
-  }
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => window.sotfSplash?.notifyVisualReady());
-  });
-}
-
-notifyWhenArtworkIsPaintable();
+// The main process already waits for Electron's ready-to-show event. Do not
+// additionally block the splash on large artwork decoding; the page has a
+// solid fallback background and the image can finish painting after display.
+window.sotfSplash?.notifyVisualReady();
