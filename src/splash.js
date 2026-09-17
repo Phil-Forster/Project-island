@@ -3,6 +3,7 @@
 const label = document.getElementById('splashStatus');
 const fill = document.getElementById('splashProgressFill');
 const progress = document.getElementById('splashProgress');
+const art = document.querySelector('.splash__art');
 
 function applyStatus(payload = {}) {
   const nextLabel = typeof payload.label === 'string' && payload.label.trim()
@@ -20,7 +21,9 @@ function applyStatus(payload = {}) {
 applyStatus({ label: 'Starting achievement tracker…', progress: 5 });
 window.sotfSplash?.onStatus(applyStatus);
 
-// The main process already waits for Electron's ready-to-show event. Do not
-// additionally block the splash on large artwork decoding; the page has a
-// solid fallback background and the image can finish painting after display.
+// Let Electron paint the lightweight splash shell before starting the large
+// background artwork request. This keeps ready-to-show off the image path.
 window.sotfSplash?.notifyVisualReady();
+setTimeout(() => {
+  if (art?.dataset.src) art.src = art.dataset.src;
+}, 60);
