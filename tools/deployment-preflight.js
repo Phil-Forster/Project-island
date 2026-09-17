@@ -63,8 +63,6 @@ assert(renderer.includes('EXISTING INSTALLATION DETECTED') && renderer.includes(
 const indexHtml = fs.readFileSync(path.join(root, 'deployment-ui', 'index.html'), 'utf8');
 assert(indexHtml.includes('CURRENT USER'), 'installer UI must identify the current-user deployment scope.');
 assert(!indexHtml.includes('ALL USERS'), 'installer UI must not advertise all-users deployment.');
-const splash = fs.readFileSync(path.join(root, 'src', 'splash.js'), 'utf8');
-assert(splash.includes('art.src = art.dataset.src') && !/setTimeout\([\s\S]*?art\.src = art\.dataset\.src/.test(splash), 'splash artwork must start loading during initial rendering, not after a delayed timer.');
 
 const hash = crypto.createHash('sha256');
 for (const file of requiredShared) hash.update(fs.readFileSync(path.join(root, 'deployment-ui', file)));

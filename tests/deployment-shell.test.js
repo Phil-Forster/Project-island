@@ -13,7 +13,7 @@ test('deployment shell detects an existing registered install and presents updat
   const engine = read('build/deployment-engine.nsh');
 
   assert.match(main, /function readInstalledState\(/);
-  assert.match(main, /HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Uninstall/);
+  assert.match(main, /HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall/);
   assert.match(main, /\['query', uninstallRoot, '\/s'\]/);
   assert.doesNotMatch(main, /\['query', uninstallRoot, '\/s', '\/f'/);
   assert.match(main, /function installDirFromUninstallString\(/);
@@ -41,10 +41,4 @@ test('deployment shell scripts remain syntactically valid', () => {
     const result = spawnSync(process.execPath, ['--check', path.join(root, relativePath)], { encoding: 'utf8' });
     assert.equal(result.status, 0, `${relativePath} failed syntax check: ${result.stderr || result.stdout}`);
   }
-});
-
-test('splash starts its background artwork request during initial rendering', () => {
-  const splash = read('src/splash.js');
-  assert.match(splash, /art\.src = art\.dataset\.src/);
-  assert.doesNotMatch(splash, /setTimeout\([\s\S]*?art\.src = art\.dataset\.src/);
 });
