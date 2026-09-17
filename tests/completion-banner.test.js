@@ -1,5 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const { resolveCompletionState, parseCount } = require('../src/completion-banner');
 
@@ -40,4 +42,11 @@ test('count parser reads tracker summary and Steam-read ratios', () => {
   assert.deepEqual(parseCount('32 / 32'), { current: 32, total: 32 });
   assert.deepEqual(parseCount('32 / 32 · Local UserStats'), { current: 32, total: 32 });
   assert.equal(parseCount('Unavailable'), null);
+});
+
+test('completion banner assets are wired into the tracker shell', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'src', 'index.html'), 'utf8');
+  assert.match(html, /completion-banner\.css/);
+  assert.match(html, /completion-banner\.js/);
+  assert.ok(html.indexOf('renderer.js') < html.indexOf('completion-banner.js'));
 });
