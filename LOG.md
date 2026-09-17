@@ -1,4 +1,67 @@
+# 1.3.7 — 04/09/2026
+
+- removed the boxed active-state treatment from the achievement filters so only the underline denotes the live selection
+- retained and carried forward the footer metadata alignment nudge, including the small extra inset on the portfolio item
+
+# 1.3.6 — 04/09/2026
+
+## Shared interface polish
+
+- Rebuilt the universal footer metadata row with cleaner spacing, lighter typography and better-balanced column widths.
+- Replaced the generic GitHub glyph with the GitHub mark and upgraded the Project, Author and Portfolio symbols.
+- Ensured the full `philforster.co.uk` portfolio address remains visible at desktop footer widths.
+- Removed hard-coded teal footer chrome and made borders/backgrounds derive from each tracker's own palette.
+- Retained the project/game badge geometry unchanged in the footer.
+- Reworked the All / Unlocked / Locked / Unknown controls into compact instrument-style filters with meaningful state icons and state-aware active accents.
+
+# 1.3.4 — 04/09/2026
+
+- Improved installer-to-application handoff: Finish now launches the tracker and keeps the bespoke installer visible until the application splash has actually appeared (with a bounded fail-safe), removing the previous dead pause.
+- Replaced the temporary-uninstaller `cmd.exe` / loopback `ping` deletion delay with a detached, hidden PowerShell cleanup process so no terminal window flashes during uninstall.
+- `RELEASE` remains intentionally clean: the current Setup executable only.
+- Shared Bespoke Deployment Shell updated to v2.0.4.
+
 # SOTF Achievement Tracker — Development Log
+
+## v1.3.3 — 04/09/2026
+
+- Corrected the bespoke installer-shell version source after the three-stage Windows build produced a Setup executable with the previous deployment-UI package version in its filename.
+- Synchronized the root package, `deployment-ui/project.json` and `deployment-ui/package.json` versions and made the installer artifact name resolve explicitly from the root package version.
+- Advanced **Shared Bespoke Deployment Shell** to v2.0.3 and strengthened deployment preflight checks so version drift between the tracker, deployment project and deployment UI fails before packaging.
+- Added deployment-shell package description/author metadata to remove the Electron Builder metadata warnings seen during Windows packaging.
+- No visible installer/uninstaller design, per-user deployment behaviour, tracker UI or game-reading logic changed in this patch.
+- Updated `README.md`, `LOG.md`, package versions and expected Setup filenames for this iteration.
+
+## v1.3.2 — 04/09/2026
+
+- Standardised the bespoke installer/uninstaller on a **current-user-only** deployment model across all four tracker projects.
+- Changed the default installation root to `%LOCALAPPDATA%\Programs\SOTF Achievement Tracker` and updated the visible scope label from **ALL USERS** to **CURRENT USER**.
+- Removed the deployment shell's PowerShell/UAC elevation path; the silent NSIS worker now runs directly with `/currentuser` for both installation and removal.
+- Changed Electron Builder's internal NSIS worker to `perMachine: false` and `allowElevation: false`, keeping desktop/Start Menu shortcuts and uninstall registration inside the current user's Windows profile.
+- Restricted custom install locations to the current Windows user profile so selecting a protected machine-wide location cannot silently reintroduce an elevation requirement.
+- Advanced **Shared Bespoke Deployment Shell** to v2.0.2; strengthened deployment preflight checks to reject all-users scope, elevation logic or an all-users UI label.
+- Kept the approved bespoke visual design and state flow unchanged. Updated `README.md`, `LOG.md`, package version and deployment project version for this iteration.
+
+## v1.3.1 — 04/09/2026
+
+- Corrected the Windows deployment orchestrator after `spawnSync` returned `EINVAL` when attempting to execute Electron Builder's `.cmd` shim directly.
+- The shared build now invokes `electron-builder/out/cli/cli.js` with the active Node executable, avoiding Windows batch-shim spawning entirely while preserving the same three-stage uninstaller → silent NSIS engine → installer-shell pipeline.
+- Advanced **Shared Bespoke Deployment Shell** to v2.0.1 and propagated the identical orchestration correction across all four tracker projects.
+- Strengthened `tools/deployment-preflight.js` to reject direct `electron-builder.cmd` / `.bin` shim execution and require the JavaScript CLI invocation contract.
+- No visible installer/uninstaller design, tracker UI, Steam/save logic or deployment mechanics were changed in this patch.
+- Updated `README.md`, `LOG.md`, package version and deployment project version for this iteration; Windows runtime validation remains the release gate.
+
+## v1.3.0 — 04/09/2026
+
+- Replaced the failed assisted-NSIS wizard skin with **Shared Bespoke Deployment Shell v2.0.0**.
+- The visible installer/uninstaller is now a frameless Electron UI; NSIS is invoked only in silent mode as the deployment engine and can no longer leak wizard pages, white panels or native installer buttons into the normal journey.
+- Added shared Ready → Installing → Complete/Error and Confirm uninstall → Removing → Complete/Error state flows, custom in-window folder selector with no native Windows browse dialog, custom controls, bespoke default-enabled **Launch Project Island** checkbox, keyboard focus states and project-specific artwork/accent configuration.
+- Added a three-stage Windows build: bespoke uninstaller shell → silent NSIS engine → bespoke Setup shell with the engine embedded as an internal resource.
+- Redirected Add/Remove Programs and quiet-uninstall registration to the bespoke uninstaller shell; silent upgrade/removal requests are forwarded to the hidden raw NSIS uninstaller.
+- Archived the previous `build/installer.nsh` / `build/installer/` assisted-wizard implementation under `build/legacy-assisted-installer/`; it is no longer referenced by the active build.
+- Replaced the old installer preflight with `tools/deployment-preflight.js`, which verifies UI/engine separation and required shared assets before packaging.
+- Extended deployment preflight coverage to reject native file/folder dialogs and require the bespoke directory browser bridge, keeping UAC/security prompts as the only Windows-owned visible surfaces.
+- Updated `BUILD-WINDOWS.bat`, `README.md`, `LOG.md`, package version and project deployment configuration for this iteration.
 
 ## v1.2.5 — 04/09/2026
 

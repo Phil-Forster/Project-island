@@ -1009,3 +1009,193 @@ body.is-scanning .instrument-deck::after { opacity:1; animation:island-scan 1.2s
 .compass-mark--e { right: 0; }
 .compass-mark--s { bottom: 0; }
 .compass-mark--w { left: 0; }
+
+
+/* -------------------------------------------------------------------------
+ * Universal tracker footer + filter polish — 04/09/2026.
+ * Shared geometry is intentionally identical across all Project Island
+ * trackers; only each project's palette, badge and scene artwork vary.
+ * ---------------------------------------------------------------------- */
+.project-footer {
+  margin-top: 36px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent-bright) 44%, var(--border-strong, var(--border)));
+  border-radius: 9px;
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--bg) 94%, transparent) 0%,
+      color-mix(in srgb, var(--surface) 91%, transparent) 44%,
+      color-mix(in srgb, var(--bg) 96%, transparent) 100%),
+    url('assets/app-background-island.webp') left 64% / 620px auto no-repeat,
+    linear-gradient(var(--bg), var(--bg));
+  box-shadow: inset 0 1px rgba(255,255,255,.035), 0 14px 34px rgba(0,0,0,.22);
+}
+.project-footer__main {
+  display: grid;
+  grid-template-columns: minmax(310px, 1.03fr) minmax(330px, 1.08fr) minmax(590px, 1.95fr) minmax(135px, .44fr);
+  min-height: 128px;
+  align-items: stretch;
+}
+.project-footer__identity,
+.project-footer__warning,
+.project-footer__links,
+.project-footer__meta { min-width: 0; padding: 18px 22px; }
+.project-footer__warning,
+.project-footer__links,
+.project-footer__meta { border-left: 1px solid color-mix(in srgb, var(--accent-bright) 17%, var(--border-soft)); }
+.project-footer__identity { display:flex; align-items:center; gap:18px; }
+.project-footer__mark {
+  display:grid; flex:0 0 92px; width:92px; height:92px; place-items:center;
+  overflow:visible; border:0; border-radius:0; background:transparent; box-shadow:none; color:var(--accent-bright);
+}
+.project-footer__mark::after { display:none; }
+.project-footer__mark img {
+  width:100%; height:100%; object-fit:contain; object-position:center;
+  filter:drop-shadow(0 0 13px color-mix(in srgb, var(--accent-bright) 24%, transparent));
+}
+.project-footer__project-name {
+  display:block; font-size:1.02rem; line-height:1.06; font-weight:790; letter-spacing:.085em; color:var(--text);
+}
+.project-footer__family {
+  display:block; margin-top:6px; font-size:.66rem; line-height:1; font-weight:740; letter-spacing:.165em; color:var(--accent-bright);
+}
+.project-footer__tagline { max-width:215px; margin:8px 0 0; font-size:.71rem; line-height:1.46; color:var(--muted); }
+.project-footer__warning { display:flex; align-items:center; gap:14px; }
+.project-footer__warning-icon {
+  flex:0 0 34px; width:34px; height:34px;
+  color:color-mix(in srgb, var(--warning) 78%, #f5b078);
+}
+.project-footer__warning-icon svg { width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.55; stroke-linecap:round; stroke-linejoin:round; }
+.project-footer__warning strong {
+  display:block; font-size:.72rem; line-height:1.1; font-weight:760; letter-spacing:.13em;
+  color:color-mix(in srgb, var(--warning) 78%, #f5b078);
+}
+.project-footer__warning p { max-width:300px; margin:7px 0 0; font-size:.69rem; line-height:1.46; color:var(--muted); }
+.project-footer__links {
+  display:grid;
+  grid-template-columns: minmax(112px,.9fr) minmax(118px,.92fr) minmax(128px,1fr) minmax(164px,1.28fr);
+  align-items:stretch;
+  padding:0;
+}
+.project-footer__link-item {
+  display:flex; min-width:0; min-height:128px; align-items:center; justify-content:flex-start; gap:10px;
+  padding:15px 12px; border-radius:0; color:var(--text); text-decoration:none;
+  transition:background .16s ease, color .16s ease;
+}
+.project-footer__link-item + .project-footer__link-item { border-left:1px solid color-mix(in srgb, var(--accent-bright) 14%, var(--border-soft)); }
+.project-footer__link-item[href]:hover { background:color-mix(in srgb, var(--accent-bright) 6%, transparent); }
+.project-footer__link-item[href]:focus-visible { outline:2px solid var(--accent-bright); outline-offset:-4px; }
+.project-footer__link-icon {
+  display:grid; flex:0 0 25px; width:25px; height:25px; place-items:center; color:var(--accent-bright); opacity:.94;
+}
+.project-footer__link-icon svg { width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.45; stroke-linecap:round; stroke-linejoin:round; }
+.project-footer__link-icon--brand svg { fill:currentColor; stroke:none; }
+.project-footer__link-copy { display:flex; min-width:0; flex-direction:column; justify-content:center; }
+.project-footer__link-label {
+  display:block; font-size:.61rem; line-height:1.05; font-weight:720; letter-spacing:.115em;
+  color:color-mix(in srgb, var(--text) 83%, var(--muted));
+}
+.project-footer__link-value {
+  display:block; min-width:0; margin-top:5px; overflow:visible; font-size:.7rem; line-height:1.2; font-weight:500;
+  color:var(--muted); text-overflow:clip; white-space:nowrap;
+}
+.project-footer__link-item[href] .project-footer__link-value { color:color-mix(in srgb, var(--text) 84%, var(--accent-bright)); }
+.project-footer__link-item[href]:hover .project-footer__link-value { color:var(--accent-bright); }
+.project-footer__link-item--pending { opacity:.68; }
+.project-footer__meta { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+.project-footer__version { font-size:1rem; line-height:1; font-weight:780; letter-spacing:.07em; color:var(--accent-bright); }
+.project-footer__meta-label { margin-top:7px; font-size:.61rem; line-height:1.28; color:var(--muted); }
+.project-footer__legal {
+  display:flex; min-height:40px; align-items:center; justify-content:space-between; gap:20px;
+  padding:9px 20px; border-top:1px solid color-mix(in srgb, var(--accent-bright) 17%, var(--border-soft));
+  background:color-mix(in srgb, var(--bg) 84%, transparent); font-size:.65rem; color:var(--muted);
+}
+.project-footer__legal a { display:inline-flex; align-items:center; gap:6px; color:var(--accent-bright); text-decoration:none; }
+.project-footer__legal a:hover { color:var(--text); text-decoration:underline; text-underline-offset:3px; }
+.project-footer__legal a:focus-visible { outline:2px solid var(--accent-bright); outline-offset:3px; border-radius:2px; }
+.project-footer__legal svg { width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+
+/* State filters: compact instrument controls rather than plain text tabs. */
+.segmented {
+  display:flex; align-items:center; gap:5px; padding:5px;
+  border:1px solid color-mix(in srgb, var(--accent-bright) 20%, var(--border));
+  border-radius:7px;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--surface-2) 88%, var(--bg)), color-mix(in srgb, var(--bg) 91%, var(--surface)));
+  box-shadow:inset 0 1px rgba(255,255,255,.025), 0 5px 14px rgba(0,0,0,.12);
+}
+.filter {
+  --filter-state: var(--accent-bright);
+  position:relative; display:inline-flex; min-height:34px; align-items:center; justify-content:center; gap:7px;
+  padding:7px 11px; border:1px solid transparent; border-radius:4px;
+  background:transparent; color:var(--muted); cursor:pointer;
+  font:inherit; font-size:.71rem; font-weight:660; letter-spacing:.025em;
+  transition:background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.filter[data-filter="all"] { --filter-state: var(--accent-bright); }
+.filter[data-filter="unlocked"] { --filter-state: var(--success); }
+.filter[data-filter="locked"] { --filter-state: color-mix(in srgb, var(--locked) 78%, var(--text)); }
+.filter[data-filter="unknown"] { --filter-state: var(--warning); }
+.filter__icon { display:grid; flex:0 0 15px; width:15px; height:15px; place-items:center; color:currentColor; opacity:.72; }
+.filter__icon svg { width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.55; stroke-linecap:round; stroke-linejoin:round; }
+.filter[data-filter="all"] .filter__icon svg rect { fill:currentColor; stroke:none; }
+.filter:hover { color:var(--text); background:color-mix(in srgb, var(--surface-3) 62%, transparent); border-color:color-mix(in srgb, var(--filter-state) 20%, transparent); }
+.filter:active { transform:translateY(1px); }
+.filter:focus-visible { outline:2px solid var(--accent-bright); outline-offset:2px; }
+.filter.active {
+  color:var(--text);
+  border-color:color-mix(in srgb, var(--filter-state) 42%, var(--border));
+  background:linear-gradient(180deg, color-mix(in srgb, var(--filter-state) 10%, var(--surface-3)), color-mix(in srgb, var(--filter-state) 5%, var(--surface-2)));
+  box-shadow:inset 0 -2px 0 var(--filter-state), inset 0 1px rgba(255,255,255,.025), 0 0 12px color-mix(in srgb, var(--filter-state) 8%, transparent);
+}
+.filter.active .filter__icon { color:var(--filter-state); opacity:1; }
+.filter.active .filter__label { font-weight:720; }
+
+@media (max-width: 1420px) {
+  .project-footer__main { grid-template-columns:1fr 1fr; }
+  .project-footer__warning, .project-footer__links, .project-footer__meta { border-left:0; }
+  .project-footer__warning, .project-footer__meta { border-left:1px solid color-mix(in srgb, var(--accent-bright) 17%, var(--border-soft)); }
+  .project-footer__links, .project-footer__meta { border-top:1px solid color-mix(in srgb, var(--accent-bright) 17%, var(--border-soft)); }
+  .project-footer__links { grid-template-columns:repeat(4, minmax(0,1fr)); }
+  .project-footer__link-item { justify-content:center; }
+}
+@media (max-width: 780px) {
+  .project-footer__main { grid-template-columns:1fr; }
+  .project-footer__identity, .project-footer__warning, .project-footer__links, .project-footer__meta { border-left:0; }
+  .project-footer__warning, .project-footer__links, .project-footer__meta { border-top:1px solid color-mix(in srgb, var(--accent-bright) 17%, var(--border-soft)); }
+  .project-footer__links { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .project-footer__link-item { min-height:84px; }
+  .project-footer__link-item:nth-child(3) { border-left:0; border-top:1px solid color-mix(in srgb, var(--accent-bright) 14%, var(--border-soft)); }
+  .project-footer__link-item:nth-child(4) { border-top:1px solid color-mix(in srgb, var(--accent-bright) 14%, var(--border-soft)); }
+  .project-footer__legal { flex-wrap:wrap; }
+  .segmented { width:100%; }
+  .filter { flex:1 1 0; padding-inline:8px; }
+}
+
+
+/* -------------------------------------------------------------------------
+ * Footer alignment nudge — 04/09/2026.
+ * Keeps the approved footer design, but shifts the metadata items slightly to
+ * the right for better optical centring. The portfolio item gets a tiny extra
+ * inset because the longer URL previously read slightly left-heavy.
+ * ---------------------------------------------------------------------- */
+.project-footer__link-item { padding:15px 10px 15px 14px; }
+.project-footer__link-item:nth-child(4) { padding-left:17px; }
+
+
+/* -------------------------------------------------------------------------
+ * Filter refinement — 04/09/2026.
+ * The active state no longer uses a boxed outline. The live filter is now
+ * indicated by the underline only, while the footer metadata items retain the
+ * subtle rightward optical nudge, with a little extra inset for Portfolio.
+ * ---------------------------------------------------------------------- */
+.filter.active {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: inset 0 -2px 0 var(--filter-state);
+}
+.filter.active:hover {
+  border-color: transparent;
+  background: transparent;
+}
+.project-footer__link-item { padding:15px 10px 15px 14px; }
+.project-footer__link-item:nth-child(4) { padding-left:18px; }

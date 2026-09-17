@@ -4,3 +4,5 @@ RELEASE/
 npm-debug.log*
 *.zip
 .DS_Store
+
+build/generated/

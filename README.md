@@ -2,9 +2,9 @@
 
 ## Current iteration
 
-**v1.2.4 — late-bound launch broker correction**
+**v1.3.7 — per-user bespoke deployment standard**
 
-v1.2.4 corrects the launch broker's compile position. The bespoke completion state still owns the UI, while the user-level launch function is emitted from Electron Builder's late `customFinishPage` hook—the same point its stock assisted installer uses—so the required broker plug-in is available without exposing the stock Finish page.
+The installer/uninstaller architecture now matches the project requirement: the visible UI is entirely ours, while NSIS runs silently underneath as the deployment mechanism only. The old assisted-wizard skin remains archived for reference and is no longer part of the active build.
 
 ### v1.0.0 — game-native interface redesign
 
@@ -36,7 +36,7 @@ Achievement names, requirements and in-app guidance may reveal story details, lo
 
 ## Current build
 
-**v1.2.0 — shared bespoke installer architecture**
+**v1.3.7 — per-user bespoke deployment standard**
 
 The tracker is a general reader. It is not tied to a particular Steam account, save slot, Windows username, Steam library drive, or development save.
 
@@ -174,17 +174,17 @@ The build script:
 
 The application icon and Windows executable metadata are applied during this build.
 
-### Shared bespoke installer/uninstaller architecture
+### Engine-only bespoke installer/uninstaller architecture
 
-The Windows package uses **Shared Bespoke Installer Framework v1.0.5**. NSIS/Electron Builder remains the deployment engine for elevation, extraction, registry/shortcut registration, upgrades and removal, but its standard wizard pages are not intentionally presented as the user interface.
+The Windows deployment system uses **Shared Bespoke Deployment Shell v2.0.3**. The visible installer and uninstaller are a frameless Electron shell owned entirely by the project. NSIS is retained only as the silent deployment engine underneath for payload installation/removal, current-user registry entries, current-user shortcuts, Add/Remove Programs registration and upgrade handling.
 
-The visible installer is one persistent branded shell whose content changes in place through **Ready → Installing → Complete/Error**. The uninstaller uses the same framework and changes through **Confirm uninstall → Removing → Complete/Error**. Project-specific configuration supplies the project/game names, accent palette, copy and shell artwork; shared state, path handling, scope/UAC handling, progress presentation, success/failure handling and navigation live in `build/installer/framework.nsh`.
+The visible installer stays in one persistent window and changes in place through **Ready → Installing → Complete/Error**. The visible uninstaller uses the same shared shell and changes through **Confirm uninstall → Removing → Complete/Error**. Buttons, the in-window folder selector, progress presentation, status copy, window controls and the default-enabled **Launch [Project Name]** checkbox are all part of the bespoke UI. The Browse action never opens a native Windows folder dialog. Standard NSIS/MUI pages are never part of the normal visible journey. Installation is scoped to the current Windows user under `%LOCALAPPDATA%\Programs`, so normal install/uninstall does not request UAC elevation; Windows-owned security surfaces such as SmartScreen may still appear independently.
 
-The Ready state owns the visible install-location field and Current user / All users selection. All-users installation may invoke the Windows-owned UAC prompt, but the Electron Builder install-mode and directory wizard pages remain hidden. The completion state provides a bespoke **Launch Project Island** toggle, checked by default, and a single **Finish** action. Clearing the toggle exits without launching the tracker.
+Each project supplies only `deployment-ui/project.json`, its badge and its game-specific hero artwork. The shared implementation lives in `deployment-ui/main.js`, `preload.js`, `renderer.js`, `index.html`, `styles.css` and `electron-builder.config.js`. `tools/deployment-preflight.js` enforces the engine/UI separation before packaging.
 
-`node tools/installer-preflight.js` validates the shared-framework contract before Windows packaging. The preflight also enforces Electron Builder 26.15.7's `customFinishPage` contract: defining that macro replaces the stock installer Finish-page branch entirely, so no dead stock-page pre-hook/function is retained. `BUILD-WINDOWS.bat` remains the supported packaging entry point. The source ZIP does not contain a compiled Windows Setup EXE; final NSIS compilation and visual/runtime validation are performed on Windows.
+**Migration note:** uninstall any earlier machine-wide/`Program Files` test build before installing this per-user release. The new installer intentionally does not elevate itself to remove an older all-users installation.
 
-
+The build is intentionally three-stage: build the bespoke portable uninstaller shell, build the internal NSIS deployment engine, then embed that engine inside the bespoke portable Setup shell. Windows' uninstall registration is redirected to the bespoke uninstaller shell, while silent upgrades and quiet removal are delegated to the hidden raw NSIS uninstaller.
 ## Main interface
 
 The application provides:
@@ -275,3 +275,7 @@ The application uses the universal achievement-tracker footer structure while pr
 
 © 2026 Phil Forster  
 [philforster.co.uk](https://philforster.co.uk)
+## Deployment polish (v1.3.7)
+
+The bespoke current-user installer now hands directly into the application splash before closing, and uninstall cleanup runs without a visible terminal window. `RELEASE` contains only the current Setup executable.
+

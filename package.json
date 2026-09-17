@@ -1,6 +1,6 @@
 {
   "name": "sotf-achievement-tracker",
-  "version": "1.2.5",
+  "version": "1.3.7",
   "description": "Read-only Sons of the Forest Steam achievement dashboard with optional save evidence",
   "author": "Phil Forster",
   "homepage": "https://philforster.co.uk",
@@ -9,9 +9,10 @@
   "scripts": {
     "start": "electron .",
     "test": "node --test tests/*.test.js",
-    "build:windows": "electron-builder --win nsis --x64",
+    "build:windows": "node tools/build-deployment.js",
     "pack:windows": "electron-builder --win --x64 --dir",
-    "check:installer": "node tools/installer-preflight.js"
+    "check:installer": "node tools/deployment-preflight.js",
+    "build:engine": "electron-builder --win nsis --x64"
   },
   "devDependencies": {
     "electron": "43.1.1",
@@ -24,7 +25,7 @@
     "asar": false,
     "compression": "normal",
     "directories": {
-      "output": "dist",
+      "output": "dist/engine",
       "buildResources": "build"
     },
     "files": [
@@ -47,9 +48,9 @@
       "executableName": "SOTF Achievement Tracker"
     },
     "nsis": {
-      "oneClick": false,
+      "oneClick": true,
       "perMachine": false,
-      "allowElevation": true,
+      "allowElevation": false,
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
@@ -57,11 +58,17 @@
       "uninstallDisplayName": "SOTF Achievement Tracker",
       "runAfterFinish": false,
       "deleteAppDataOnUninstall": false,
-      "artifactName": "SOTF-Achievement-Tracker-Setup-v${version}.${ext}",
-      "include": "build/installer.nsh",
+      "artifactName": "deployment-engine-${version}.${ext}",
+      "include": "build/deployment-engine.nsh",
       "installerIcon": "build/installerIcon.ico",
       "uninstallerIcon": "build/uninstallerIcon.ico"
-    }
+    },
+    "extraFiles": [
+      {
+        "from": "build/generated/Project Island Uninstaller.exe",
+        "to": "Project Island Uninstaller.exe"
+      }
+    ]
   },
   "repository": {
     "type": "git",
