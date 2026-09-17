@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 
 const project = require('./project.json');
 const args = process.argv.slice(1);
@@ -30,6 +30,65 @@ function valueOf(prefix) {
 function defaultInstallDir() {
   const localAppData = process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
   return path.join(localAppData, 'Programs', project.installFolderName);
+}
+
+function parseRegistryValue(text, name) {
+  const escaped = String(name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = String(text || '').match(new RegExp(`^\\s*${escaped}\\s+REG_\\w+\\s+(.+)$`, 'mi'));
+  return match?.[1]?.trim() || null;
+}
+
+function readInstalledState() {
+  const fallbackDir = defaultInstallDir();
+  const fallbackApp = path.join(fallbackDir, project.appExecutableName);
+
+  if (process.platform === 'win32') {
+    const uninstallRoot = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall';
+    try {
+      const search = spawnSync('reg.exe', ['query', uninstallRoot, '/s', '/f', project.installFolderName], {
+        encoding: 'utf8',
+        windowsHide: true,
+        timeout: 3000,
+      });
+      if (!search.error && search.status === 0) {
+        const keys = [...new Set(
+          String(search.stdout || '')
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter((line) => /^HKEY_CURRENT_USER\\/i.test(line))
+        )];
+        for (const key of keys) {
+          const query = spawnSync('reg.exe', ['query', key], {
+            encoding: 'utf8',
+            windowsHide: true,
+            timeout: 1500,
+          });
+          if (query.error || query.status !== 0) continue;
+          const displayName = parseRegistryValue(query.stdout, 'DisplayName');
+          if (!displayName || displayName.toLowerCase() !== project.installFolderName.toLowerCase()) continue;
+          const registeredDir = parseRegistryValue(query.stdout, 'InstallLocation') || fallbackDir;
+          const appPath = path.join(registeredDir, project.appExecutableName);
+          if (!fs.existsSync(appPath)) continue;
+          return {
+            installed: true,
+            installedVersion: parseRegistryValue(query.stdout, 'DisplayVersion'),
+            installDir: registeredDir,
+            source: 'uninstall-registry',
+          };
+        }
+      }
+    } catch {
+      // Fall back to the standard current-user installation directory.
+    }
+  }
+
+  const installed = fs.existsSync(fallbackApp);
+  return {
+    installed,
+    installedVersion: null,
+    installDir: fallbackDir,
+    source: installed ? 'filesystem' : null,
+  };
 }
 
 function isPerUserPath(candidate) {
@@ -177,10 +236,15 @@ function listDirectories(requestedPath) {
   }
 }
 
-ipcMain.handle('deployment:get-context', () => ({ project, mode, version: project.version, installDir }));
+ipcMain.handle('deployment:get-context', () => {
+  const installedState = readInstalledState();
+  if (mode === 'install' && !valueOf('--install-dir') && installedState.installed) installDir = installedState.installDir;
+  return { project, mode, version: project.version, installDir, ...installedState };
+});
 ipcMain.handle('deployment:list-directory', (_event, requestedPath) => listDirectories(requestedPath));
 ipcMain.handle('deployment:install', async (_event, requestedDir) => {
   if (busy) return { ok: false, code: 16, message: 'A deployment operation is already running.' };
+  const updating = readInstalledState().installed;
   busy = true;
   installDir = requestedDir || installDir;
   if (!isPerUserPath(installDir)) {
@@ -190,14 +254,14 @@ ipcMain.handle('deployment:install', async (_event, requestedDir) => {
   try {
     const worker = path.join(process.resourcesPath, 'engine', 'deployment-engine.exe');
     if (!fs.existsSync(worker)) return { ok: false, code: 2, message: `Deployment engine not found: ${worker}` };
-    emitPhase('Installing for the current Windows user', 12);
+    emitPhase(updating ? 'Updating for the current Windows user' : 'Installing for the current Windows user', 12);
     const result = await hiddenProcess(worker, ['/S', '/currentuser', `/D=${installDir}`]);
     if (!result.ok) return result;
     emitPhase('Verifying installed application', 92);
     const appPath = path.join(installDir, project.appExecutableName);
     if (!fs.existsSync(appPath)) return { ok: false, code: 3, message: `Installation finished but the application executable was not found at ${appPath}.` };
-    emitPhase('Installation complete', 100);
-    return { ok: true, installDir };
+    emitPhase(updating ? 'Update complete' : 'Installation complete', 100);
+    return { ok: true, installDir, updated: updating };
   } finally {
     busy = false;
   }
