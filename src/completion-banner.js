@@ -83,17 +83,24 @@
     banner.setAttribute('aria-live', 'polite');
     banner.hidden = true;
     banner.innerHTML = `
-      <span class="completion-banner__seal" aria-hidden="true">✓</span>
+      <span class="completion-banner__mark" aria-hidden="true">
+        <img src="assets/project-island-badge.webp" alt="">
+      </span>
       <span class="completion-banner__copy">
-        <span class="completion-banner__eyebrow">PROJECT ISLAND · STEAM RECORD COMPLETE</span>
-        <strong class="completion-banner__title">All achievements recovered</strong>
+        <span class="completion-banner__eyebrow">SURVIVAL RECORD COMPLETE</span>
+        <strong class="completion-banner__title">All achievements complete</strong>
         <span class="completion-banner__detail"></span>
       </span>
       <span class="completion-banner__status">100%</span>
     `;
 
-    const main = documentRef.querySelector('main');
-    if (main) main.prepend(banner);
+    const instrumentDeck = documentRef.querySelector('.instrument-deck');
+    if (instrumentDeck?.parentNode) {
+      instrumentDeck.insertAdjacentElement('afterend', banner);
+    } else {
+      documentRef.querySelector('main')?.prepend(banner);
+    }
+
     return banner;
   }
 
@@ -115,9 +122,7 @@
 
     const detail = banner.querySelector('.completion-banner__detail');
     if (detail) {
-      detail.textContent = state.definitive
-        ? `Steam confirms all ${snapshot.total} achievement states as unlocked.`
-        : `Previously confirmed complete. The current Steam read is partial, so the confirmed completion state is being retained.`;
+      detail.textContent = `${snapshot.total} / ${snapshot.total} achievements unlocked · Island record complete`;
     }
 
     return state;
