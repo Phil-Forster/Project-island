@@ -27,6 +27,8 @@
   let pickerParent = null;
   let pickerPreviousFocus = null;
 
+  const isUpdateMode = () => context?.mode === 'install' && context?.installed === true;
+
   async function getContext() {
     if (window.deployment) return window.deployment.getContext();
     const response = await fetch('project.json');
@@ -37,25 +39,32 @@
       mode: params.get('mode') === 'uninstall' ? 'uninstall' : 'install',
       version: project.version || 'preview',
       installDir: `C:\\Users\\CurrentUser\\AppData\\Local\\Programs\\${project.installFolderName}`,
+      installed: false,
+      installedVersion: null,
       preview: true,
     };
   }
 
   function applyProject(project) {
     const root = document.documentElement.style;
+    const updating = isUpdateMode();
     root.setProperty('--accent', project.accent);
     root.setProperty('--accent-bright', project.accentBright);
     root.setProperty('--accent-dim', project.accentDim);
     document.title = `${project.projectName} ${context.mode === 'uninstall' ? 'Uninstaller' : 'Setup'}`;
     $('projectName').textContent = project.projectName;
     $('gameName').textContent = `${project.gameName} · Achievement Tracker`;
-    $('readyEyebrow').textContent = project.copy.readyEyebrow;
-    $('readyTitle').textContent = project.copy.readyTitle;
-    $('readyBody').textContent = project.copy.readyBody;
+    $('readyEyebrow').textContent = updating ? 'EXISTING INSTALLATION DETECTED' : project.copy.readyEyebrow;
+    $('readyTitle').textContent = updating ? `Update ${project.projectName}` : project.copy.readyTitle;
+    $('readyBody').textContent = updating
+      ? `${context.installedVersion ? `Version ${context.installedVersion} is installed. ` : ''}This setup will update the existing tracker in place to v${context.version}.`
+      : project.copy.readyBody;
     $('readyNote').textContent = project.copy.readyNote;
-    $('installingTitle').textContent = `Installing ${project.projectName}`;
-    $('completeTitle').textContent = `${project.projectName} is installed`;
-    $('completeBody').textContent = project.copy.completeBody;
+    $('installingTitle').textContent = `${updating ? 'Updating' : 'Installing'} ${project.projectName}`;
+    $('completeTitle').textContent = updating ? `${project.projectName} is updated` : `${project.projectName} is installed`;
+    $('completeBody').textContent = updating
+      ? `The existing achievement tracker has been updated to v${context.version} and is ready to use.`
+      : project.copy.completeBody;
     $('launchLabel').textContent = `Launch ${project.projectName}`;
     $('removeTitle').textContent = `Uninstall ${project.projectName}`;
     $('removeBody').textContent = project.copy.removeBody;
@@ -83,12 +92,12 @@
     secondaryBtn.disabled = busy;
 
     if (next === 'ready') {
-      primaryBtn.textContent = 'Install';
+      primaryBtn.textContent = isUpdateMode() ? 'Update' : 'Install';
       secondaryBtn.textContent = 'Cancel';
       primaryBtn.disabled = false;
       secondaryBtn.style.display = '';
     } else if (next === 'installing') {
-      primaryBtn.textContent = 'Installing…';
+      primaryBtn.textContent = isUpdateMode() ? 'Updating…' : 'Installing…';
       primaryBtn.disabled = true;
       secondaryBtn.textContent = 'Please wait';
       secondaryBtn.disabled = true;
@@ -111,7 +120,7 @@
       primaryBtn.disabled = false;
       secondaryBtn.style.display = 'none';
     } else if (next === 'error') {
-      primaryBtn.textContent = context.mode === 'uninstall' ? 'Try Again' : 'Try Again';
+      primaryBtn.textContent = 'Try Again';
       primaryBtn.disabled = false;
       secondaryBtn.textContent = 'Close';
       secondaryBtn.style.display = '';
@@ -162,18 +171,23 @@
   }
 
   async function runInstall() {
+    const updating = isUpdateMode();
     setState('installing');
     progressValue = 0;
-    setProgress(5, 'Preparing deployment engine');
+    setProgress(5, updating ? 'Preparing update' : 'Preparing deployment engine');
     beginCreep(false);
     if (context.preview) {
-      setTimeout(() => { stopCreep(); setProgress(100, 'Installation complete'); setState('complete'); }, 1800);
+      setTimeout(() => {
+        stopCreep();
+        setProgress(100, updating ? 'Update complete' : 'Installation complete');
+        setState('complete');
+      }, 1800);
       return;
     }
     const result = await window.deployment.install(installPath.value);
     if (!result?.ok) return showError(result);
     stopCreep();
-    setProgress(100, 'Installation complete');
+    setProgress(100, result.updated || updating ? 'Update complete' : 'Installation complete');
     setTimeout(() => setState('complete'), 350);
   }
 
