@@ -2,13 +2,14 @@
 setlocal
 cd /d "%~dp0"
 
-rem Normal launches hand off immediately to the silent VBS launcher.
-if exist "node_modules\electron\dist\electron.exe" (
-  start "" wscript.exe //B "%~dp0START-WINDOWS.vbs"
-  exit /b 0
-)
+set "ELECTRON_CLI=%CD%\node_modules\electron\cli.js"
+set "ELECTRON_EXE=%CD%\node_modules\electron\dist\electron.exe"
 
-rem First-time setup remains visible so dependency errors are actionable.
+rem Electron 43+ installs the npm package first and downloads the runtime on
+rem first CLI use. Check for the package/CLI, not the runtime executable.
+if exist "%ELECTRON_CLI%" goto prepare_runtime
+
+rem First-time dependency setup remains visible so errors are actionable.
 where node >nul 2>nul
 if errorlevel 1 (
   echo.
@@ -31,7 +32,7 @@ if errorlevel 1 (
 
 echo Installing project dependencies...
 echo.
-call npm install
+call npm.cmd install --no-audit --no-fund
 if errorlevel 1 (
   echo.
   echo Dependency installation failed.
@@ -39,17 +40,29 @@ if errorlevel 1 (
   exit /b 1
 )
 
-rem Never hand back to the VBS launcher unless Electron now exists. This
-rem prevents BAT -> VBS -> BAT recursion when dependency setup is incomplete.
-if not exist "node_modules\electron\dist\electron.exe" (
+if not exist "%ELECTRON_CLI%" (
   echo.
-  echo Dependency installation completed, but Electron was not installed correctly.
-  echo Expected: %CD%\node_modules\electron\dist\electron.exe
-  echo.
-  echo Run npm.cmd install in this folder and review any reported error.
+  echo Dependency installation completed, but the Electron package is missing.
+  echo Expected: %ELECTRON_CLI%
   echo.
   pause
   exit /b 2
+)
+
+:prepare_runtime
+rem A clean Electron 43+ install may not contain electron.exe yet. Running the
+rem package CLI once downloads/prepares the pinned runtime before silent launch.
+if not exist "%ELECTRON_EXE%" (
+  echo Preparing Electron runtime for first launch...
+  echo.
+  call node "%ELECTRON_CLI%" --version
+  if errorlevel 1 (
+    echo.
+    echo Electron runtime preparation failed. Review the output above.
+    echo.
+    pause
+    exit /b 3
+  )
 )
 
 start "" wscript.exe //B "%~dp0START-WINDOWS.vbs"
