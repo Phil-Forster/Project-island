@@ -24,6 +24,8 @@ const orchestrator = fs.readFileSync(path.join(root, 'tools', 'build-deployment.
 assert(orchestrator.includes("electron-builder', 'out', 'cli', 'cli.js"), 'deployment orchestrator must invoke electron-builder through its JavaScript CLI.');
 assert(!/electron-builder\.cmd|node_modules[\\/]\.bin[\\/]electron-builder/i.test(orchestrator), 'deployment orchestrator must not spawn the Windows .cmd shim directly.');
 assert(orchestrator.includes('run(process.execPath, [builderCli'), 'deployment orchestrator must execute the builder CLI with the current Node runtime.');
+assert(orchestrator.includes('reportSignatureStatus') && orchestrator.includes('Get-AuthenticodeSignature'), 'deployment orchestrator must report Authenticode status for the three produced executables.');
+assert(orchestrator.includes('reportSignatureStatus(uninstallerUi, 1, 3)') && orchestrator.includes('reportSignatureStatus(enginePath, 2, 3)') && orchestrator.includes('reportSignatureStatus(finalPath, 3, 3)'), 'deployment orchestrator must report signing status as 1/3, 2/3 and 3/3.');
 assert(pkg.build?.nsis?.oneClick === true, 'the internal NSIS worker must be one-click so /S has no wizard path.');
 assert(pkg.build?.nsis?.perMachine === false, 'the internal worker must use current-user deployment scope.');
 assert(pkg.build?.nsis?.allowElevation === false, 'the internal worker must not request administrator elevation.');
