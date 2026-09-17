@@ -5,10 +5,10 @@ cd /d "%~dp0"
 set "ELECTRON_CLI=%CD%\node_modules\electron\cli.js"
 set "ELECTRON_EXE=%CD%\node_modules\electron\dist\electron.exe"
 
-rem Normal launches use the prepared runtime directly. The CLI is only used
-rem when Electron still needs its one-time runtime bootstrap.
+rem Normal launches use the prepared Electron runtime directly.
 if exist "%ELECTRON_EXE%" goto launch
 
+rem If dependencies are missing, install them once with visible errors.
 if not exist "%ELECTRON_CLI%" (
   where node >nul 2>nul
   if errorlevel 1 (
@@ -50,6 +50,7 @@ if not exist "%ELECTRON_CLI%" (
   exit /b 2
 )
 
+rem Electron 43+ can defer downloading its runtime until first CLI use.
 echo Preparing Electron runtime for first launch...
 echo.
 call node "%ELECTRON_CLI%" --version
@@ -71,5 +72,5 @@ if not exist "%ELECTRON_EXE%" (
 )
 
 :launch
-start "" wscript.exe //B "%~dp0START-WINDOWS.vbs"
-endlocal
+start "" "%ELECTRON_EXE%" .
+exit /b 0
