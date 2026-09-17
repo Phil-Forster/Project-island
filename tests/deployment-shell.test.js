@@ -10,6 +10,7 @@ const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'u
 test('deployment shell detects an existing registered install and presents update state', () => {
   const main = read('deployment-ui/main.js');
   const renderer = read('deployment-ui/renderer.js');
+  const engine = read('build/deployment-engine.nsh');
 
   assert.match(main, /function readInstalledState\(/);
   assert.match(main, /HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Uninstall/);
@@ -19,6 +20,7 @@ test('deployment shell detects an existing registered install and presents updat
   assert.match(renderer, /EXISTING INSTALLATION DETECTED/);
   assert.match(renderer, /isUpdateMode\(\) \? 'Update' : 'Install'/);
   assert.match(renderer, /Updating…/);
+  assert.match(engine, /InstallLocation "\$INSTDIR"/);
 });
 
 test('deployment shell scripts remain syntactically valid', () => {
